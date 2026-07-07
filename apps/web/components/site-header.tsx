@@ -135,10 +135,10 @@ export function SiteHeader({ sidebarToggle }: SiteHeaderProps) {
                                 href={item.href}
                                 aria-current={item.active ? "page" : undefined}
                                 className={cn(
-                                    "inline-flex h-8 items-center rounded-md px-1.5 transition-[background-color,color,opacity] duration-200 ease-out",
+                                    "inline-flex h-8 items-center px-1.5 transition-[color,opacity] duration-200 ease-out",
                                     item.active
-                                        ? "bg-muted/60 text-foreground/85 dark:bg-muted/40 dark:text-foreground/85"
-                                        : "text-foreground/55 hover:bg-muted/45 hover:text-foreground/85 dark:hover:bg-muted/30"
+                                        ? "text-foreground font-semibold"
+                                        : "text-foreground/55 hover:text-foreground/80"
                                 )}
                             >
                                 {item.label}

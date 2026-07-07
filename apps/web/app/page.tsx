@@ -99,7 +99,7 @@ export default function Home() {
                   delay: 0.2,
                   ease: [0.23, 1, 0.32, 1],
                 }}
-                className="mt-6 max-w-3xl text-[2.5rem] font-semibold leading-[0.98] tracking-[-0.025em] text-zinc-950 text-balance dark:text-white sm:text-[3rem] md:text-[3.25rem] lg:text-[3.35rem]"
+                className="mt-6 max-w-3xl text-[2.5rem] font-medium leading-[0.98] tracking-[-0.025em] text-zinc-950 text-balance dark:text-white sm:text-[3rem] md:text-[3.25rem] lg:text-[3.35rem]"
               >
                 Beautiful Animated UI
                 <br />

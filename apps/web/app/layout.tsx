@@ -1,7 +1,7 @@
 import type React from "react";
 import type { Metadata, Viewport } from "next";
 import {
-  Albert_Sans,
+  Geist,
   JetBrains_Mono,
   Instrument_Serif,
 } from "next/font/google";
@@ -14,7 +14,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { RouteScrollbarController } from "@/components/route-scrollbar-controller";
 import { absoluteUrl, siteConfig } from "@/lib/site";
 
-const fontSans = Albert_Sans({
+const fontSans = Geist({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
@@ -33,7 +33,7 @@ const fontSerif = Instrument_Serif({
   display: "swap",
 });
 
-const fontDisplay = Albert_Sans({
+const fontDisplay = Geist({
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
