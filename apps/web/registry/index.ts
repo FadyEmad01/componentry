@@ -298,6 +298,16 @@ export const components: Record<string, ComponentMetadata> = {
     previewVideo:
       "https://pub-a50e7f4ea75a4970a1738e50d53b6eb1.r2.dev/preview-videos/visual-effects/imagerippleeffect.webm",
   },
+  "ripple-transition": {
+    title: "Ripple Transition",
+    description:
+      "WebGL image transitions with noisy refractive waves, chromatic edges, glow, and click-triggered ripple origins.",
+    category: "Visual Effects",
+    slug: "ripple-transition",
+    addedAt: "2026-07-07",
+    previewVideo:
+      "https://pub-a50e7f4ea75a4970a1738e50d53b6eb1.r2.dev/preview-videos/visual-effects/rippletransition.webm",
+  },
   "infinite-image-field": {
     title: "Infinite Image Field",
     description:

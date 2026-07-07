@@ -126,6 +126,10 @@ const docsImportMap: Record<
     import("@/components/docs/image-ripple-effect").then((m) => ({
       default: m.ImageRippleEffectDocs,
     })),
+  "ripple-transition": () =>
+    import("@/components/docs/ripple-transition").then((m) => ({
+      default: m.RippleTransitionDocs,
+    })),
   "infinite-image-field": () =>
     import("@/components/docs/infinite-image-field").then((m) => ({
       default: m.InfiniteImageFieldDocs,
