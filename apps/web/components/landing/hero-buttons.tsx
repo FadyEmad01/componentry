@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Blocks, Terminal } from "lucide-react";
+import { ArrowRight, LayoutGrid, Terminal } from "lucide-react";
 import { CopyButton } from "@/components/copy-button";
 
 export function HeroButtons() {
@@ -15,10 +15,10 @@ export function HeroButtons() {
         className="relative z-10 w-full sm:w-fit"
       >
         <Link
-          href="/blocks"
+          href="/docs"
           className="flex h-12 w-full cursor-pointer items-center justify-center gap-2.5 whitespace-nowrap rounded-xl bg-gradient-to-b from-zinc-900 to-zinc-950 px-5 font-medium text-zinc-100 shadow-[0_1px_1px_0_rgba(0,0,0,0.2),0_8px_20px_-8px_rgba(0,0,0,0.55),0_0_0_1px_rgba(255,255,255,0.08),inset_0_1.5px_0_0_rgba(255,255,255,0.08)] transition-[box-shadow,background-color,transform,gap] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] hover:gap-3 hover:from-zinc-800 hover:to-zinc-900 hover:shadow-[0_2px_2px_0_rgba(0,0,0,0.24),0_14px_30px_-10px_rgba(0,0,0,0.58),0_0_0_1px_rgba(255,255,255,0.08),inset_0_1.5px_0_0_rgba(255,255,255,0.08)] dark:from-white dark:to-zinc-100 dark:text-zinc-950 dark:shadow-[0_1px_1px_0_rgba(0,0,0,0.06),0_8px_20px_-8px_rgba(0,0,0,0.25),0_0_0_1px_rgba(0,0,0,0.08),inset_0_1.5px_0_0_rgba(255,255,255,1),inset_0_-1px_0_0_rgba(0,0,0,0.03)] dark:hover:from-zinc-50 dark:hover:to-zinc-200 sm:w-fit"
         >
-          <Blocks className="size-4" />
+          <LayoutGrid className="size-4" />
           <span className="text-sm font-semibold">Browse components</span>
           <ArrowRight className="size-3.5" />
         </Link>
