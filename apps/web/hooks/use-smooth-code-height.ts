@@ -25,6 +25,7 @@ export function useSmoothCodeHeight(deps: React.DependencyList) {
     const observer = new ResizeObserver(measureHeight)
     observer.observe(el)
     return () => observer.disconnect()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [measureHeight, ...deps])
 
   return {

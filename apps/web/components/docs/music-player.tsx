@@ -2,9 +2,6 @@ import React from "react";
 import { DocsPageLayout } from "@/components/docs-page-layout";
 import { readComponentSource } from "@/lib/source-code";
 import { MusicPlayerPreview } from "@/components/docs/previews/music-player-preview";
-import { MusicPlayer } from "@workspace/ui/components/music-player";
-
-const importCode = `import { MusicPlayer } from "@/components/ui/music-player";`;
 
 const defaultCode = `import { MusicPlayer } from "@/components/ui/music-player";
 

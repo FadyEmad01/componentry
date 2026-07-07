@@ -15,7 +15,6 @@
     "recompress:previews": "scripts/venv/bin/python scripts/recompress-and-reupload-previews.py"
   },
   "devDependencies": {
-    "@types/three": "^0.182.0",
     "@workspace/eslint-config": "workspace:*",
     "@workspace/typescript-config": "workspace:*",
     "playwright": "^1.57.0",
@@ -27,10 +26,5 @@
   "engines": {
     "node": ">=20"
   },
-  "dependencies": {
-    "@react-three/drei": "^10.7.7",
-    "@react-three/fiber": "^9.5.0",
-    "lucide-react": "^0.475.0",
-    "three": "^0.182.0"
-  }
+  "dependencies": {}
 }

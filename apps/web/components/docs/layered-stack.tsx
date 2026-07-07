@@ -3,8 +3,6 @@ import { LayeredStack } from "@workspace/ui/components/layered-stack"
 import { DocsPageLayout } from "@/components/docs-page-layout"
 import { readComponentSource } from "@/lib/source-code"
 
-const importCode = `import { LayeredStack } from "@/components/ui/layered-stack"`
-
 const images = [
     "https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&q=80&w=800",
     "https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&q=80&w=800",
