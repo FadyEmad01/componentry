@@ -146,24 +146,19 @@ export function Footer() {
             </a>
             .
           </p>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 group cursor-pointer">
-              <div className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </div>
-              <span className="text-zinc-500 transition-colors group-hover:text-zinc-900 dark:text-zinc-400 dark:group-hover:text-zinc-100">
-                All systems normal
-              </span>
-            </div>
-          </div>
         </div>
         </LandingContent>
       </div>
 
       {/* Massive Half-Cut Text */}
-      <div className="w-full flex justify-center mt-12 pointer-events-none select-none overflow-hidden h-[10.5vw]">
-        <h1 className="text-[10.5vw] font-black leading-[0.7] tracking-tighter text-zinc-950/5 dark:text-white/5 translate-y-[28%]">
+      <div
+        className="pointer-events-none mt-8 flex h-[10.5vw] w-full select-none justify-center overflow-hidden"
+        style={{
+          maskImage:
+            "linear-gradient(to bottom, transparent 0%, black 32%, black 72%, transparent 100%)",
+        }}
+      >
+        <h1 className="translate-y-[30%] text-[10.5vw] font-black leading-[0.7] tracking-tighter text-zinc-950/[0.028] dark:text-white/[0.035]">
           COMPONENTRY
         </h1>
       </div>

@@ -61,7 +61,7 @@ export function LandingShaderBand({ className }: { className?: string }) {
 export function LandingDivider({ className }: { className?: string }) {
   return (
     <div
-      className={cn("relative h-px w-full shrink-0 bg-border/35", className)}
+      className={cn("relative z-[70] h-px w-full shrink-0 bg-border/35", className)}
     >
       <span className="absolute left-0 top-1/2 hidden size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-[2px] border border-line bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-1px_0_rgba(0,0,0,0.06)] md:block dark:bg-[#09090B] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),inset_0_-1px_0_rgba(0,0,0,0.5)]" />
       <span className="absolute right-0 top-1/2 hidden size-2.5 translate-x-1/2 -translate-y-1/2 rounded-[2px] border border-line bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-1px_0_rgba(0,0,0,0.06)] md:block dark:bg-[#09090B] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),inset_0_-1px_0_rgba(0,0,0,0.5)]" />
