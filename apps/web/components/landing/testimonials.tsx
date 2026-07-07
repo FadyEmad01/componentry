@@ -41,6 +41,15 @@ interface Testimonial {
 
 const testimonials: Testimonial[] = [
   {
+    quote: "very nice stuff!",
+    name: "Pasquale Vitiello",
+    handle: "@pacovitiello · Design Engineer @ Cal.com",
+    initials: "PV",
+    source: "x",
+    avatar: "https://unavatar.io/x/pacovitiello",
+    href: "https://x.com/pacovitiello/status/2012236042393280531?s=20",
+  },
+  {
     quote:
       "what is going on @shadcn? In just a few hours I've discovered a bunch of new shadcn libraries I had never seen before... componentry fun by @harshjdhv... I thought I'd caught them all!",
     name: "Ali Bey",
