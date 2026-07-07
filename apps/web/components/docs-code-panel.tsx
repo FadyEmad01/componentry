@@ -62,7 +62,7 @@ export function DocsCodePanel({
                     aria-selected={isSelected}
                     onClick={() => onTabChange?.(tab.id)}
                     className={cn(
-                      "shrink-0 rounded-md px-2.5 py-1 text-[13px] font-medium outline-none transition-colors",
+                      "shrink-0 rounded-md px-2.5 py-1 text-xs font-normal outline-none transition-colors",
                       "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
                       isSelected
                         ? "bg-zinc-200/80 text-foreground dark:bg-zinc-800/80"

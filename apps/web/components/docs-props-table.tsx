@@ -43,7 +43,7 @@ export function DocsPropsTable({ props, className }: DocsPropsTableProps) {
               >
                 <td className="px-4 py-4 align-top">
                   <div className="space-y-1.5">
-                    <code className="font-mono text-[13px] font-semibold text-zinc-900 dark:text-zinc-100">
+                    <code className="font-mono text-[13px] font-medium text-zinc-900 dark:text-zinc-100">
                       {prop.name}
                     </code>
                     {prop.description && (

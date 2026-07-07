@@ -134,7 +134,7 @@ export async function DocsPageLayout({
         <div className="pointer-events-auto shrink-0">
           <FloatingDocsSidebarLazy />
         </div>
-          <div className="inline-flex min-h-8 min-w-0 items-center gap-2 font-[family-name:var(--font-inter)] text-[15px] font-normal tracking-[-0.02em] leading-normal text-black/45 pointer-events-auto dark:text-white/45">
+          <div className="inline-flex min-h-8 min-w-0 items-center gap-2 text-[15px] font-normal tracking-[-0.02em] leading-normal text-black/45 pointer-events-auto dark:text-white/45">
           <Link
             href="/docs"
             className="shrink-0 font-normal transition-colors hover:text-black/70 dark:hover:text-white/70"
@@ -158,16 +158,16 @@ export async function DocsPageLayout({
         <div className="absolute bottom-0 left-0 right-0 z-30 h-24 bg-gradient-to-t from-[#f3f4f6] to-transparent dark:from-[#080808] pointer-events-none" />
 
         <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          <div className="px-6 lg:px-16 pt-12 lg:pt-48 pb-40 space-y-16 lg:space-y-20 max-w-3xl mx-auto">
+          <div className="px-6 lg:px-16 pt-12 lg:pt-48 pb-40 space-y-14 lg:space-y-16 max-w-3xl mx-auto">
 
             {/* Header Section */}
             <header>
-              <div className="space-y-6">
-                <h1 className="text-4xl lg:text-6xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 leading-[1.1] mb-2 pb-2">
+              <div className="space-y-4">
+                <h1 className="mb-1 max-w-2xl pb-1 text-[34px] font-medium leading-[1.08] tracking-[-0.025em] text-zinc-900 sm:text-[40px] lg:text-[46px] dark:text-zinc-100">
                   {title}
                 </h1>
 
-                <p className="text-lg text-muted-foreground/90 leading-relaxed max-w-2xl font-normal">
+                <p className="max-w-xl text-[15px] font-normal leading-7 tracking-normal text-muted-foreground/85">
                   {description}
                 </p>
 
@@ -177,7 +177,7 @@ export async function DocsPageLayout({
 
 
             {/* Installation */}
-            <Section title="Installation" className="pt-10">
+            <Section title="Installation" className="pt-8">
               {installationNote && (
                 <div className="mb-4">
                   {installationNote}
@@ -187,7 +187,7 @@ export async function DocsPageLayout({
             </Section>
 
             {/* Usage */}
-            <Section title="Usage" className="pt-10">
+            <Section title="Usage" className="pt-8">
               {usageNote && (
                 <div className="mb-4">
                   {usageNote}
@@ -227,7 +227,7 @@ export async function DocsPageLayout({
 
             {/* Props */}
             {props.length > 0 && (
-              <Section title="API Reference" className="pt-10">
+              <Section title="API Reference" className="pt-8">
                 <DocsPropsTable props={props} />
               </Section>
             )}

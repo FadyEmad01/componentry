@@ -1,13 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
 import { absoluteUrl } from "@/lib/site"
-
-const fontInter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-})
 
 export const metadata: Metadata = {
   title: "Components Documentation",
@@ -27,7 +20,7 @@ export default function DocsLayout({
   children: React.ReactNode
 }): React.JSX.Element {
   return (
-    <div data-route-docs className={`${fontInter.variable} min-h-svh flex flex-col bg-background`}>
+    <div data-route-docs className="min-h-svh flex flex-col bg-background">
       <div className="flex-1 flex overflow-hidden">
         {/* Main content - Full screen split view handled by pages */}
         <main className="flex-1 w-full h-full">

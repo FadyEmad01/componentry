@@ -79,13 +79,13 @@ export function Section({ title, children, id, step, className }: SectionProps) 
       data-section-title={title}
     >
       {/* Section header with optional step number */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="mb-4 flex items-center gap-3">
         {step !== undefined && (
-          <div className="flex items-center justify-center h-8 w-8 rounded-full bg-foreground text-background text-sm font-semibold shrink-0">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-foreground text-xs font-medium text-background">
             {step}
           </div>
         )}
-        <h2 className="text-2xl font-semibold tracking-tight text-zinc-800 dark:text-zinc-200 pb-1">
+        <h2 className="pb-1 text-[17px] font-medium leading-7 tracking-[-0.01em] text-zinc-800 dark:text-zinc-200">
           {title}
         </h2>
       </div>
