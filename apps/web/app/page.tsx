@@ -34,7 +34,7 @@ const showcaseCardClass =
   "relative flex flex-col rounded-2xl bg-white p-1.5 shadow-[0_0_0_1px_rgba(0,0,0,0.055),0_10px_30px_-18px_rgba(0,0,0,0.35)] transition-[box-shadow,transform] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_rgba(0,0,0,0.075),0_18px_48px_-22px_rgba(0,0,0,0.45)] dark:bg-[#161616] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.07)] dark:hover:shadow-[0_0_0_1px_rgba(255,255,255,0.12)] transform-gpu will-change-transform";
 
 const showcasePreviewClass =
-  "relative flex-1 w-full overflow-hidden rounded-[10px] bg-zinc-50 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.045)] dark:bg-[#09090B] dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)]";
+  "relative flex-1 w-full overflow-hidden rounded-[10px] bg-zinc-50 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.045)] dark:bg-background dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)]";
 
 const showcaseLabelClass =
   "shrink-0 px-2.5 pb-1 pt-2 text-[13px] font-medium leading-5 text-zinc-700 text-pretty dark:text-zinc-400";
@@ -52,7 +52,7 @@ export default function Home() {
   return (
     <div
       data-route-home
-      className="relative min-h-screen w-full overflow-x-hidden bg-white dark:bg-[#09090B] text-foreground transition-colors duration-300 selection:bg-zinc-200 dark:selection:bg-zinc-800"
+      className="relative min-h-screen w-full overflow-x-hidden bg-white dark:bg-background text-foreground transition-colors duration-300 selection:bg-zinc-200 dark:selection:bg-zinc-800"
     >
       <LandingGuideLines />
       <SiteHeader landingGutter />

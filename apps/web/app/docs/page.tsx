@@ -313,7 +313,7 @@ export default function DocsPage() {
     .filter(g => g.items.length > 0)
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#09090B] text-zinc-900 dark:text-zinc-100 font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-white dark:bg-background text-zinc-900 dark:text-zinc-100 font-sans overflow-x-hidden">
       <LandingGuideLines />
       <DocsScrollEdgeFade position="bottom" />
 

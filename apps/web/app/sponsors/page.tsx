@@ -21,7 +21,7 @@ const sponsorHref =
 export default function SponsorsPage() {
   return (
     <div
-      className="relative min-h-screen w-full overflow-x-hidden bg-white dark:bg-[#09090B] text-foreground selection:bg-zinc-200 dark:selection:bg-zinc-800"
+      className="relative min-h-screen w-full overflow-x-hidden bg-white dark:bg-background text-foreground selection:bg-zinc-200 dark:selection:bg-zinc-800"
     >
       <LandingGuideLines />
       <SiteHeader landingGutter />

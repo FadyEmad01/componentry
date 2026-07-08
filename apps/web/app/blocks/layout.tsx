@@ -21,8 +21,8 @@ export default function BlocksLayout({
     <div className="min-h-screen overflow-x-clip bg-background text-foreground">
       <div className="pointer-events-none fixed left-[max(1rem,calc((100vw-1440px)/2))] top-0 z-[60] hidden h-14 w-px bg-line md:block" />
       <div className="pointer-events-none fixed right-[max(1rem,calc((100vw-1440px)/2))] top-0 z-[60] hidden h-14 w-px bg-line md:block" />
-      <div className="pointer-events-none fixed left-[max(1rem,calc((100vw-1440px)/2))] top-14 z-[61] hidden size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-[2px] border border-line bg-white md:block dark:bg-[#09090B]" />
-      <div className="pointer-events-none fixed right-[max(1rem,calc((100vw-1440px)/2))] top-14 z-[61] hidden size-2.5 translate-x-1/2 -translate-y-1/2 rounded-[2px] border border-line bg-white md:block dark:bg-[#09090B]" />
+      <div className="pointer-events-none fixed left-[max(1rem,calc((100vw-1440px)/2))] top-14 z-[61] hidden size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-[2px] border border-line bg-white md:block dark:bg-background" />
+      <div className="pointer-events-none fixed right-[max(1rem,calc((100vw-1440px)/2))] top-14 z-[61] hidden size-2.5 translate-x-1/2 -translate-y-1/2 rounded-[2px] border border-line bg-white md:block dark:bg-background" />
       <SiteHeader />
       <main className="overflow-x-clip pt-14">
         <div

@@ -49,7 +49,7 @@ export async function SilkAuroraDocs() {
       title="Silk Aurora"
       description="A premium WebGL hero background with satin-dark aurora ribbons, pearlescent highlights, subtle grain, and optional cursor depth."
       preview={
-        <div className="relative h-full w-full bg-[#f3f4f6] dark:bg-[#080808]">
+        <div className="relative h-full w-full bg-[#f3f4f6] dark:bg-background">
           <SilkAurora
             title="Silk Aurora"
             subtitle="Premium Atmosphere"
@@ -68,7 +68,7 @@ export async function SilkAuroraDocs() {
         {
           title: "Champagne",
           preview: (
-            <div className="relative h-full w-full bg-[#f3f4f6] dark:bg-[#080808]">
+            <div className="relative h-full w-full bg-[#f3f4f6] dark:bg-background">
               <SilkAurora
                 title="Maison Lumiere"
                 subtitle="Private Preview"
@@ -89,7 +89,7 @@ export async function SilkAuroraDocs() {
         {
           title: "Editorial",
           preview: (
-            <div className="relative h-full w-full bg-[#f3f4f6] dark:bg-[#080808]">
+            <div className="relative h-full w-full bg-[#f3f4f6] dark:bg-background">
               <SilkAurora
                 title="Nocturne Index"
                 subtitle="Editorial Systems"

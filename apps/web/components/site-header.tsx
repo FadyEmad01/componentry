@@ -107,7 +107,7 @@ export function SiteHeader({ sidebarToggle }: SiteHeaderProps) {
     ]
 
     return (
-        <header className="fixed top-0 left-0 right-0 z-50 w-full border-b border-line bg-white dark:bg-[#09090B]">
+        <header className="fixed top-0 left-0 right-0 z-50 w-full border-b border-line bg-white dark:bg-background">
             <div
                 className={cn(
                     "h-14 w-full",

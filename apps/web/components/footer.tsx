@@ -30,7 +30,7 @@ const links = {
 
 export function Footer() {
   return (
-    <footer className="relative flex w-full flex-col overflow-hidden border-t border-zinc-200/60 bg-white pt-18 text-[15px] dark:border-zinc-800/60 dark:bg-[#09090B]">
+    <footer className="relative flex w-full flex-col overflow-hidden border-t border-zinc-200/60 bg-white pt-18 text-[15px] dark:border-zinc-800/60 dark:bg-background">
       <div className={`mx-auto w-full ${landingGutterClass}`}>
         <LandingContent>
         <div className="z-10 grid w-full grid-cols-1 gap-12 pb-18 md:grid-cols-12 lg:gap-8 xl:gap-12">

@@ -216,7 +216,7 @@ export function DocsPreviewWrapper({
       previewShell.style.height = `${rect.height}px`
       previewShell.style.zIndex = "60"
       previewShell.style.padding = padding
-      previewShell.classList.add("bg-[#f3f4f6]", "dark:bg-[#080808]")
+      previewShell.classList.add("bg-[#f3f4f6]", "dark:bg-[#121212]")
     }
 
     const clearFixedStyles = () => {
@@ -224,7 +224,7 @@ export function DocsPreviewWrapper({
       for (const prop of ["position", "top", "left", "width", "height", "zIndex", "padding", "transition"] as const) {
         previewShell.style.removeProperty(prop)
       }
-      previewShell.classList.remove("bg-[#f3f4f6]", "dark:bg-[#080808]")
+      previewShell.classList.remove("bg-[#f3f4f6]", "dark:bg-[#121212]")
       cacheSplitPreviewRect()
     }
 
@@ -282,12 +282,12 @@ export function DocsPreviewWrapper({
 
   return (
     <div className={cn(
-      "relative w-full h-full rounded-xl lg:rounded-2xl border border-border/50 overflow-hidden bg-white dark:bg-[#121212] flex flex-col"
+      "relative w-full h-full rounded-xl lg:rounded-2xl border border-border/50 overflow-hidden bg-white dark:border-[#121212] dark:bg-[#121212] flex flex-col"
     )} ref={previewRef}>
       {/* Toolbar — glass dock, fixed top-right */}
       <section
         aria-label="Preview controls"
-        className="fixed right-6 top-6 z-[99] flex select-none items-center gap-1 rounded-2xl border border-border/40 bg-white/70 p-1.5 shadow-card backdrop-blur-xl dark:border-white/[0.06] dark:bg-[#121212]/75"
+        className="fixed right-6 top-6 z-[99] flex select-none items-center gap-1 rounded-2xl border border-border/40 bg-white/70 p-1.5 shadow-card backdrop-blur-xl dark:border-white/[0.06] dark:bg-[#171717]/75"
       >
         <PreviewToolbarCell>
           <React.Suspense
@@ -385,7 +385,7 @@ export function DocsPreviewWrapper({
               : "p-10 flex items-center justify-center"
           )}
         >
-          <div key={key} className={cn("w-full h-full", !fullWidthPreview && "flex items-center justify-center")}>
+          <div key={key} className={cn("w-full h-full bg-white dark:bg-[#171717]", !fullWidthPreview && "flex items-center justify-center")}>
             {resolvedActiveVariant === -1 ? children : variants[resolvedActiveVariant]?.preview}
           </div>
         </div>
@@ -398,7 +398,7 @@ export function DocsPreviewWrapper({
             ref={variantBarRef}
             role="tablist"
             aria-label="Preview variants"
-            className="pointer-events-auto flex max-w-[min(100vw-2rem,36rem)] items-center gap-0.5 overflow-x-auto rounded-2xl border border-border/40 bg-white/75 p-1 shadow-[0_8px_32px_rgba(0,0,0,0.08)] backdrop-blur-xl dark:border-white/[0.06] dark:bg-[#121212]/80 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            className="pointer-events-auto flex max-w-[min(100vw-2rem,36rem)] items-center gap-0.5 overflow-x-auto rounded-2xl border border-border/40 bg-white/75 p-1 shadow-[0_8px_32px_rgba(0,0,0,0.08)] backdrop-blur-xl dark:border-white/[0.06] dark:bg-[#171717]/80 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
             {!hideDefaultVariant && (
               <PreviewVariantTab
@@ -441,9 +441,9 @@ export function DocsPreviewWrapper({
               }}
               className="fixed bottom-0 left-0 z-50 flex flex-col outline-none h-[80vh] w-full rounded-t-lg border-t border-border/20 bg-transparent shadow-none pointer-events-none lg:top-0 lg:bottom-0 lg:h-screen lg:max-h-screen lg:w-1/2 lg:rounded-none lg:border-none lg:pt-3 lg:pb-3 lg:pl-3 lg:pr-1.5"
             >
-              <div className="relative h-full bg-[#f3f4f6] dark:bg-[#121212] lg:rounded-2xl overflow-hidden border border-border/20 shadow-2xl pointer-events-auto">
+              <div className="relative h-full bg-[#f3f4f6] dark:bg-[#171717] lg:rounded-2xl overflow-hidden border border-border/20 shadow-2xl pointer-events-auto">
                 <div className="absolute top-0 left-0 right-0 z-20 pointer-events-none">
-                  <div className="absolute inset-0 h-32 bg-gradient-to-b from-[#f3f4f6] to-transparent dark:from-[#121212] [mask-image:linear-gradient(to_bottom,black_20%,transparent)]" />
+                  <div className="absolute inset-0 h-32 bg-gradient-to-b from-[#f3f4f6] to-transparent dark:from-[#171717] [mask-image:linear-gradient(to_bottom,black_20%,transparent)]" />
                   <div className="relative z-10 flex flex-col pointer-events-auto">
                     <div className="flex items-center justify-center pt-2 pb-1">
                       <div className="w-10 h-1 rounded-full bg-zinc-900/[0.08] dark:bg-white/[0.08] transition-colors hover:bg-zinc-900/[0.15] dark:hover:bg-white/[0.15]" />
@@ -462,7 +462,7 @@ export function DocsPreviewWrapper({
                 </div>
 
                 <div className="relative h-full min-h-0">
-                  <div className="absolute bottom-0 left-0 right-0 z-10 h-16 bg-gradient-to-t from-[#f3f4f6] to-transparent dark:from-[#121212] pointer-events-none [mask-image:linear-gradient(to_top,black_30%,transparent)]" />
+                  <div className="absolute bottom-0 left-0 right-0 z-10 h-16 bg-gradient-to-t from-[#f3f4f6] to-transparent dark:from-[#171717] pointer-events-none [mask-image:linear-gradient(to_top,black_30%,transparent)]" />
                   <div className="h-full">{personalizeContent}</div>
                 </div>
               </div>
@@ -493,10 +493,10 @@ export function DocsPreviewWrapper({
               }}
               className="fixed bottom-0 left-0 z-50 flex flex-col outline-none h-[80vh] w-full rounded-t-lg border-t border-border/20 bg-transparent shadow-none pointer-events-none lg:top-0 lg:bottom-0 lg:h-screen lg:max-h-screen lg:w-1/2 lg:rounded-none lg:border-none lg:pt-3 lg:pb-3 lg:pl-3 lg:pr-1.5"
             >
-              <div className="relative h-full bg-[#f3f4f6] dark:bg-[#121212] lg:rounded-2xl overflow-hidden border border-border/20 shadow-2xl pointer-events-auto">
+              <div className="relative h-full bg-[#f3f4f6] dark:bg-[#171717] lg:rounded-2xl overflow-hidden border border-border/20 shadow-2xl pointer-events-auto">
                 {/* Header Overlay */}
                 <div className="absolute top-0 left-0 right-0 z-20 pointer-events-none">
-                  <div className="absolute inset-0 h-32 bg-gradient-to-b from-[#f3f4f6] to-transparent dark:from-[#121212] [mask-image:linear-gradient(to_bottom,black_20%,transparent)]" />
+                  <div className="absolute inset-0 h-32 bg-gradient-to-b from-[#f3f4f6] to-transparent dark:from-[#171717] [mask-image:linear-gradient(to_bottom,black_20%,transparent)]" />
                   <div className="relative z-10 flex flex-col pointer-events-auto">
                     {/* Drag handle - top edge-to-edge */}
                     <div
@@ -547,7 +547,7 @@ export function DocsPreviewWrapper({
                 {/* Code content - full height, hidden scrollbar */}
                 <div className="relative h-full min-h-0">
                   {/* Bottom gradient overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 z-10 h-16 bg-gradient-to-t from-[#f3f4f6] to-transparent dark:from-[#121212] pointer-events-none [mask-image:linear-gradient(to_top,black_30%,transparent)]" />
+                  <div className="absolute bottom-0 left-0 right-0 z-10 h-16 bg-gradient-to-t from-[#f3f4f6] to-transparent dark:from-[#171717] pointer-events-none [mask-image:linear-gradient(to_top,black_30%,transparent)]" />
                   <div data-drawer-code className="h-full overflow-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] [&_pre]:min-h-full [&_pre]:!pt-24 [&_pre]:!px-4 [&_.relative.group_>_button]:hidden">
                     <div className="h-full w-full">
                       {isSourceLoading && (

@@ -127,7 +127,7 @@ export async function DocsPageLayout({
   return (
     <div
       data-docs-layout
-      className="flex flex-col lg:flex-row w-full h-full min-h-screen lg:h-screen bg-[#f3f4f6] dark:bg-[#080808] text-foreground"
+      className="flex flex-col lg:flex-row w-full h-full min-h-screen lg:h-screen bg-[#f3f4f6] dark:bg-background text-foreground"
     >
       {/* Minimal Navigation Cluster */}
       <div className="fixed left-1 top-3 z-50 flex items-center gap-2.5 pointer-events-none sm:left-3 lg:absolute lg:left-6 lg:top-6">
@@ -151,11 +151,11 @@ export async function DocsPageLayout({
       {/* Left Column: Scrollable Content */}
       <div
         data-docs-left-column
-        className="w-full lg:basis-1/2 lg:max-w-1/2 h-full flex flex-col relative z-10 bg-[#f3f4f6] dark:bg-[#080808]"
+        className="w-full lg:basis-1/2 lg:max-w-1/2 h-full flex flex-col relative z-10 bg-[#f3f4f6] dark:bg-background"
       >
         {/* Scroll edge fades — subtly blend content into page background */}
-        <div className="absolute top-0 left-0 right-0 z-30 h-24 bg-gradient-to-b from-[#f3f4f6] to-transparent dark:from-[#080808] pointer-events-none hidden lg:block" />
-        <div className="absolute bottom-0 left-0 right-0 z-30 h-24 bg-gradient-to-t from-[#f3f4f6] to-transparent dark:from-[#080808] pointer-events-none" />
+        <div className="absolute top-0 left-0 right-0 z-30 h-24 bg-gradient-to-b from-[#f3f4f6] to-transparent dark:from-background pointer-events-none hidden lg:block" />
+        <div className="absolute bottom-0 left-0 right-0 z-30 h-24 bg-gradient-to-t from-[#f3f4f6] to-transparent dark:from-background pointer-events-none" />
 
         <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <div className="px-6 lg:px-16 pt-12 lg:pt-48 pb-40 space-y-14 lg:space-y-16 max-w-3xl mx-auto">
@@ -247,7 +247,7 @@ export async function DocsPageLayout({
       {/* Right Column: Sticky Preview */}
       <div
         data-docs-right-column
-        className="flex-1 lg:basis-1/2 lg:max-w-1/2 lg:h-full lg:sticky lg:top-0 order-first lg:order-last bg-[#f3f4f6] dark:bg-[#080808] flex flex-col z-20"
+        className="flex-1 lg:basis-1/2 lg:max-w-1/2 lg:h-full lg:sticky lg:top-0 order-first lg:order-last bg-[#f3f4f6] dark:bg-[#121212] flex flex-col z-20"
       >
         {/* We use a large padding to offset the card from the left side, mimicking the image */}
         <div

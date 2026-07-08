@@ -21,7 +21,7 @@ export function DocsSidebarTrigger() {
       >
         <DocsSidebarIcon
           className="size-4"
-          dividerClassName="bg-[#f3f4f6] dark:bg-[#080808]"
+          dividerClassName="bg-[#f3f4f6] dark:bg-background"
         />
       </button>
     </div>
