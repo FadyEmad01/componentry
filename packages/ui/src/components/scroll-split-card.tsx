@@ -2,7 +2,7 @@
 
 import { cn } from "@workspace/ui/lib/utils";
 import { motion, useScroll, useTransform, useMotionTemplate } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 
 interface ScrollSplitCardItem {
   title: string;
@@ -26,17 +26,10 @@ export function ScrollSplitCard({
   containerRef: externalContainerRef,
 }: ScrollSplitCardProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [scrollContainer, setScrollContainer] = useState<React.RefObject<HTMLElement | null> | undefined>();
-
-  useEffect(() => {
-    if (externalContainerRef?.current) {
-      setScrollContainer(externalContainerRef);
-    }
-  }, [externalContainerRef]);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    ...(scrollContainer ? { container: scrollContainer } : {}),
+    container: externalContainerRef,
     offset: ["start start", "end end"],
   });
 
