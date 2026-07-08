@@ -99,7 +99,7 @@ export default function Home() {
                   delay: 0.2,
                   ease: [0.23, 1, 0.32, 1],
                 }}
-                className="mt-6 max-w-3xl text-[2.5rem] font-medium leading-[0.98] tracking-[-0.025em] text-zinc-950 text-balance dark:text-white sm:text-[3rem] md:text-[3.25rem] lg:text-[3.35rem]"
+                className="mt-6 max-w-3xl text-4xl font-medium leading-[0.98] tracking-[-0.035em] text-zinc-950 text-balance dark:text-white sm:text-5xl md:text-6xl"
               >
                 Beautiful Animated UI
                 <br />
@@ -114,10 +114,14 @@ export default function Home() {
                   delay: 0.35,
                   ease: [0.23, 1, 0.32, 1],
                 }}
-                className="mt-5 max-w-2xl text-base font-medium tracking-tight text-zinc-500 text-pretty dark:text-zinc-500 sm:text-lg md:text-xl"
+                className="mt-5 max-w-2xl text-base font-normal leading-7 text-zinc-500 text-pretty dark:text-zinc-400 sm:text-lg"
               >
-                Effortlessly add polished, production-ready interactions to your
-                projects, with the styling and animations already handled.
+                <span>
+                  Effortlessly add polished, production-ready interactions to your projects,
+                </span>
+                <span className="block">
+                  with the styling and animations already handled.
+                </span>
               </motion.p>
 
               <motion.div

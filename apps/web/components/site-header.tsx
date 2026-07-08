@@ -128,7 +128,7 @@ export function SiteHeader({ sidebarToggle }: SiteHeaderProps) {
                         <ComponentryLogomark className="size-5 text-zinc-900 dark:text-white transition-opacity group-hover:opacity-80" />
                         <span className="text-[16px] font-bold font-display tracking-tight text-zinc-900 dark:text-white">COMPONENTRY</span>
                     </Link>
-                    <nav className="hidden items-center gap-0.5 text-sm font-medium sm:flex">
+                    <nav className="hidden items-center gap-0.5 text-sm font-normal sm:flex">
                         {navItems.map((item) => (
                             <Link
                                 key={item.href}
@@ -137,7 +137,7 @@ export function SiteHeader({ sidebarToggle }: SiteHeaderProps) {
                                 className={cn(
                                     "inline-flex h-8 items-center px-1.5 transition-[color,opacity] duration-200 ease-out",
                                     item.active
-                                        ? "text-foreground font-semibold"
+                                        ? "text-foreground"
                                         : "text-foreground/55 hover:text-foreground/80"
                                 )}
                             >
