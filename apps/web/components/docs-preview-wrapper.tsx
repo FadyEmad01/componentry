@@ -282,7 +282,7 @@ export function DocsPreviewWrapper({
 
   return (
     <div className={cn(
-      "relative w-full h-full rounded-xl lg:rounded-2xl border border-border/50 overflow-hidden bg-white dark:border-[#121212] dark:bg-[#121212] flex flex-col"
+      "relative w-full h-full rounded-xl lg:rounded-2xl border border-border/50 overflow-hidden bg-white dark:border-[#121212] dark:bg-[#171717] flex flex-col"
     )} ref={previewRef}>
       {/* Toolbar — glass dock, fixed top-right */}
       <section
@@ -373,7 +373,7 @@ export function DocsPreviewWrapper({
 
       {/* Content Area */}
       <div className={cn(
-        "w-full overflow-auto flex bg-white dark:bg-[#121212] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]",
+        "w-full overflow-auto flex bg-white dark:bg-[#171717] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]",
         "h-full",
         !fullWidthPreview && "items-center justify-center"
       )}>
@@ -385,7 +385,7 @@ export function DocsPreviewWrapper({
               : "p-10 flex items-center justify-center"
           )}
         >
-          <div key={key} className={cn("w-full h-full bg-white dark:bg-[#171717]", !fullWidthPreview && "flex items-center justify-center")}>
+          <div key={key} className={cn("w-full h-full", !fullWidthPreview && "flex items-center justify-center")}>
             {resolvedActiveVariant === -1 ? children : variants[resolvedActiveVariant]?.preview}
           </div>
         </div>

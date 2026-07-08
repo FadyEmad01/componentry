@@ -252,7 +252,7 @@ export async function DocsPageLayout({
         {/* We use a large padding to offset the card from the left side, mimicking the image */}
         <div
           data-docs-preview-shell
-          className="relative w-full h-[55vh] lg:h-full p-4 lg:pt-3 lg:pb-3 lg:pr-3 lg:pl-1.5 overflow-hidden"
+          className="relative w-full h-[55vh] lg:h-full p-4 lg:pt-3 lg:pb-3 lg:pr-3 lg:pl-1.5 overflow-hidden dark:bg-[#121212]"
         >
 
           {/* Floating Card Container */}

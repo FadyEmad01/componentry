@@ -14,7 +14,7 @@ function CursorHint() {
 
 export function PixelCanvasDemo() {
   return (
-    <div className="relative h-full w-full overflow-hidden bg-white dark:bg-[#121212]">
+    <div className="relative h-full w-full overflow-hidden bg-white dark:bg-[#171717]">
       <PixelCanvas
         colors={["#e879f9", "#a78bfa", "#38bdf8", "#22d3ee"]}
         speed={0.02}
@@ -26,7 +26,7 @@ export function PixelCanvasDemo() {
 
 export function PixelCanvasTrailDemo() {
   return (
-    <div className="relative h-full w-full overflow-hidden bg-white dark:bg-[#121212]">
+    <div className="relative h-full w-full overflow-hidden bg-white dark:bg-[#171717]">
       <PixelCanvas
         variant="trail"
         colors={["#f97316", "#fb923c", "#fbbf24", "#facc15"]}
@@ -40,7 +40,7 @@ export function PixelCanvasTrailDemo() {
 
 export function PixelCanvasGlowDemo() {
   return (
-    <div className="relative h-full w-full overflow-hidden bg-white dark:bg-[#121212]">
+    <div className="relative h-full w-full overflow-hidden bg-white dark:bg-[#171717]">
       <PixelCanvas
         variant="glow"
         colors={["#22c55e", "#10b981", "#14b8a6", "#06b6d4"]}
@@ -54,7 +54,7 @@ export function PixelCanvasGlowDemo() {
 
 export function PixelCanvasSubtleDemo() {
   return (
-    <div className="relative h-full w-full overflow-hidden bg-white dark:bg-[#121212]">
+    <div className="relative h-full w-full overflow-hidden bg-white dark:bg-[#171717]">
       <PixelCanvas
         colors={["#525252", "#a3a3a3", "#737373"]}
         gap={5}
