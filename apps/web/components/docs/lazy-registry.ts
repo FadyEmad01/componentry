@@ -10,6 +10,10 @@ const docsImportMap: Record<
     | { [key: string]: React.ComponentType<Record<string, unknown>> }
   >
 > = {
+  "dithered-logo": () =>
+    import("@/components/docs/dithered-logo").then((m) => ({
+      default: m.DitheredLogoDocs,
+    })),
   "bouncy-accordion": () =>
     import("@/components/docs/bouncy-accordion").then((m) => ({
       default: m.BouncyAccordionDocs,

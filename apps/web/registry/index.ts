@@ -22,6 +22,16 @@ export function isNewComponent(component: ComponentMetadata): boolean {
 }
 
 export const components: Record<string, ComponentMetadata> = {
+  "dithered-logo": {
+    title: "Dithered Logo",
+    description:
+      "An interactive particle logo that turns image assets into a dithered canvas field with cursor ripples.",
+    category: "Visual Effects",
+    slug: "dithered-logo",
+    addedAt: "2026-07-08",
+    previewVideo:
+      "https://pub-a50e7f4ea75a4970a1738e50d53b6eb1.r2.dev/preview-videos/visual-effects/ditheredlogo.webm",
+  },
   "sticky-scroll-cards": {
     title: "Sticky Scroll Cards",
     description:
