@@ -19,10 +19,7 @@ export function DocsSidebarTrigger() {
         aria-label="Open Navigation"
         aria-expanded={isOpen}
       >
-        <DocsSidebarIcon
-          className="size-4"
-          dividerClassName="bg-[#f3f4f6] dark:bg-background"
-        />
+        <DocsSidebarIcon isOpen={isOpen} className="size-5" />
       </button>
     </div>
   )

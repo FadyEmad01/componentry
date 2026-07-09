@@ -15,6 +15,7 @@ import type { BundledLanguage } from "shiki"
 import { FloatingDocsSidebarLazy } from "@/components/floating-docs-sidebar-lazy"
 import { buildDocsPageMarkdown } from "@/lib/docs-page-markdown"
 import { PageContextMenu } from "@/components/page-context-menu"
+import { ChevronRight } from "lucide-react"
 
 export interface PropItem {
   name: string
@@ -141,7 +142,10 @@ export async function DocsPageLayout({
           >
             Docs
           </Link>
-          <span className="shrink-0 select-none font-light opacity-50">·</span>
+          <ChevronRight
+            className="size-3.5 shrink-0 text-black/30 dark:text-white/30"
+            aria-hidden="true"
+          />
           <span className="max-w-[130px] truncate font-medium text-black/60 sm:max-w-[220px] dark:text-white/60">
             {title}
           </span>
@@ -163,7 +167,7 @@ export async function DocsPageLayout({
             {/* Header Section */}
             <header>
               <div className="space-y-4">
-                <h1 className="mb-1 max-w-2xl pb-1 text-[34px] font-medium leading-[1.08] tracking-[-0.025em] text-zinc-900 sm:text-[40px] lg:text-[46px] dark:text-zinc-100">
+                <h1 className="mb-1 max-w-2xl pb-1 text-[34px] font-medium leading-[1.08] tracking-[-0.025em] text-[#333333] sm:text-[40px] lg:text-[46px] dark:text-zinc-100">
                   {title}
                 </h1>
 

@@ -1,35 +1,53 @@
+"use client"
+
+import { motion } from "framer-motion"
+
 import { cn } from "@/lib/utils"
 
+const OUTER =
+  "M11 3H13C16.7712 3 18.6569 3 19.8284 4.17157C21 5.34315 21 7.22876 21 11V13C21 16.7712 21 18.6569 19.8284 19.8284C18.6569 21 16.7712 21 13 21H11C7.2288 21 5.3431 21 4.1716 19.8284C3 18.6569 3 16.7712 3 13V11C3 7.22876 3 5.34315 4.1716 4.17157C5.3431 3 7.2288 3 11 3Z"
+
+const PANEL_CLOSED =
+  "M10 5.5 C10 4.793 10 4.439 9.780 4.220 C9.560 4 9.207 4 8.5 4 H8.5 C6.379 4 5.318 4 4.659 4.659 C4 5.318 4 6.379 4 8.5 V15.5 C4 17.621 4 18.682 4.659 19.341 C5.318 20 6.379 20 8.5 20 H8.5 C9.207 20 9.561 20 9.780 19.780 C10 19.561 10 19.207 10 18.5 V5.5 Z"
+
+const PANEL_OPEN =
+  "M14 6 C14 5.057 14 4.586 13.707 4.293 C13.414 4 12.943 4 12 4 H10 C7.172 4 5.757 4 4.879 4.879 C4 5.757 4 7.172 4 10 V14 C4 16.828 4 18.243 4.879 19.121 C5.757 20 7.172 20 10 20 H12 C12.943 20 13.414 20 13.707 19.707 C14 19.414 14 18.943 14 18 V6 Z"
+
 interface DocsSidebarIconProps {
+  isOpen: boolean
+  strokeWidth?: number
   className?: string
-  dividerClassName?: string
 }
 
-export function DocsSidebarIcon({ className, dividerClassName }: DocsSidebarIconProps) {
+export function DocsSidebarIcon({
+  isOpen,
+  strokeWidth = 1.5,
+  className,
+}: DocsSidebarIconProps) {
   return (
-    <span
-      className={cn("relative inline-grid size-4 shrink-0 place-items-center", className)}
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("size-5 shrink-0", className)}
       aria-hidden
     >
-      <svg
-        viewBox="0 0 16 16"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="size-full"
-      >
-        <path
-          fillRule="evenodd"
-          clipRule="evenodd"
-          d="M0.32698 2.63803C0 3.27976 0 4.11984 0 5.8V10.2C0 11.8802 0 12.7202 0.32698 13.362C0.614601 13.9265 1.07354 14.3854 1.63803 14.673C2.27976 15 3.11984 15 4.8 15H11.2C12.8802 15 13.7202 15 14.362 14.673C14.9265 14.3854 15.3854 13.9265 15.673 13.362C16 12.7202 16 11.8802 16 10.2V5.8C16 4.11984 16 3.27976 15.673 2.63803C15.3854 2.07354 14.9265 1.6146 14.362 1.32698C13.7202 1 12.8802 1 11.2 1H4.8C3.11984 1 2.27976 1 1.63803 1.32698C1.07354 1.6146 0.614601 2.07354 0.32698 2.63803Z"
-          fill="currentColor"
-        />
-      </svg>
-      <span
-        className={cn(
-          "absolute left-[18.75%] top-[18.75%] h-[62.5%] w-[28.125%] rounded-[1px] bg-background",
-          dividerClassName
-        )}
+      <path
+        d={OUTER}
+        fill="currentColor"
+        stroke="currentColor"
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
-    </span>
+      <motion.path
+        d={isOpen ? PANEL_OPEN : PANEL_CLOSED}
+        animate={{ d: isOpen ? PANEL_OPEN : PANEL_CLOSED }}
+        style={{ fill: "var(--background)" }}
+        transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+      />
+    </svg>
   )
 }
