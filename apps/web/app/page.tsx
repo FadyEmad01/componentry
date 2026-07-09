@@ -99,11 +99,11 @@ export default function Home() {
                   delay: 0.2,
                   ease: [0.23, 1, 0.32, 1],
                 }}
-                className="mt-6 max-w-3xl text-4xl font-medium leading-[0.98] tracking-[-0.035em] text-zinc-950 text-balance dark:text-white sm:text-5xl md:text-6xl"
+                className="mt-6 max-w-3xl text-[clamp(1.85rem,9vw,3rem)] font-medium leading-[0.98] tracking-[-0.035em] text-zinc-950 dark:text-white sm:text-5xl md:text-6xl"
               >
-                Beautiful Animated UI
+                <span className="whitespace-nowrap">Beautiful Animated UI</span>
                 <br />
-                Components for React
+                <span className="whitespace-nowrap">Components for React</span>
               </motion.h1>
 
               <motion.p
@@ -114,12 +114,18 @@ export default function Home() {
                   delay: 0.35,
                   ease: [0.23, 1, 0.32, 1],
                 }}
-                className="mt-5 max-w-2xl text-base font-normal leading-7 text-zinc-500 text-pretty dark:text-zinc-400 sm:text-lg"
+                className="mt-5 max-w-2xl text-[clamp(0.9rem,4vw,1rem)] font-normal leading-6 text-zinc-500 dark:text-zinc-400 sm:text-lg sm:leading-7"
               >
-                <span>
+                <span className="block whitespace-nowrap sm:hidden">
+                  Polished interactions for React projects
+                </span>
+                <span className="block whitespace-nowrap sm:hidden">
+                  with styling and animations handled.
+                </span>
+                <span className="hidden sm:inline">
                   Effortlessly add polished, production-ready interactions to your projects,
                 </span>
-                <span className="block">
+                <span className="hidden sm:block">
                   with the styling and animations already handled.
                 </span>
               </motion.p>

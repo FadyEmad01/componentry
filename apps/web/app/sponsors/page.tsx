@@ -114,17 +114,22 @@ export default function SponsorsPage() {
           <LandingContent>
             <section className="border-b border-border/45 pb-12 md:pb-16">
               <div className="grid gap-8 md:grid-cols-12">
-                <div className="md:col-span-7">
+                <div className="min-w-0 md:col-span-7">
                   <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-600">
                     Sponsorship
                   </p>
-                  <h1 className="max-w-3xl text-4xl font-medium leading-[0.98] tracking-[-0.035em] text-zinc-950 dark:text-white sm:text-5xl md:text-6xl">
-                    Keep Componentry free, fast, and weirdly polished.
+                  <h1 className="w-full max-w-3xl text-[clamp(1.55rem,7.5vw,3rem)] font-medium leading-[0.98] tracking-[-0.035em] text-zinc-950 dark:text-white sm:text-5xl md:text-6xl">
+                    <span className="block whitespace-nowrap sm:inline">
+                      Keep Componentry free,
+                    </span>{" "}
+                    <span className="block whitespace-nowrap sm:inline">
+                      fast, and weirdly polished.
+                    </span>
                   </h1>
                 </div>
 
                 <div className="md:col-span-4 md:col-start-9 md:pt-10">
-                  <p className="max-w-sm text-sm leading-6 text-zinc-500 dark:text-zinc-400 sm:text-base">
+                  <p className="max-w-sm text-[0.9rem] leading-6 text-zinc-500 text-pretty dark:text-zinc-400 sm:text-base">
                     Componentry is maintained in public and shipped for free. Sponsorship helps cover hosting, design time, component maintenance, and the next batch of experiments.
                   </p>
                   <div className="mt-6">
@@ -133,13 +138,13 @@ export default function SponsorsPage() {
                 </div>
               </div>
 
-              <div className="mt-6 flex max-w-2xl flex-wrap gap-x-7 gap-y-3 text-zinc-500 dark:text-zinc-500">
+              <div className="mt-6 flex max-w-2xl flex-col gap-3 text-zinc-500 dark:text-zinc-500 sm:flex-row sm:flex-wrap sm:gap-x-7">
                 {sponsorStats.map((stat, index) => (
                   <div
                     key={stat.label}
                     className={cn(
                       "flex items-baseline gap-2.5",
-                      index !== 0 && "before:block before:size-1 before:rounded-full before:bg-zinc-300 dark:before:bg-zinc-700"
+                      index !== 0 && "sm:before:block sm:before:size-1 sm:before:rounded-full sm:before:bg-zinc-300 dark:sm:before:bg-zinc-700"
                     )}
                   >
                     <span className="text-xl font-medium tracking-[-0.035em] text-zinc-950 dark:text-white">
@@ -177,10 +182,10 @@ export default function SponsorsPage() {
                         "group flex min-h-32 flex-col rounded-lg border p-4 [transform:translate3d(0,0,0)] transition-[border-color,background-color,transform] duration-300 ease-out-strong motion-reduce:transform-none motion-reduce:transition-colors",
                         isFilled
                           ? "justify-center border-zinc-300 bg-zinc-50 will-change-transform hover:[transform:translate3d(0,-1px,0)] hover:bg-white motion-reduce:will-change-auto motion-reduce:hover:transform-none dark:border-zinc-700 dark:bg-[#121212] dark:hover:bg-[#161616]"
-                          : "justify-between border-dashed border-border/70 bg-white hover:border-zinc-300 hover:bg-zinc-50/80 dark:bg-background dark:hover:border-zinc-700 dark:hover:bg-zinc-900/35"
+                          : "items-center justify-center border-dashed border-border/70 bg-white text-center hover:border-zinc-300 hover:bg-zinc-50/80 dark:bg-background dark:hover:border-zinc-700 dark:hover:bg-zinc-900/35"
                       )}
                     >
-                      <div className={cn("flex items-start gap-3", isFilled && "items-center")}>
+                      <div className={cn("flex items-start gap-3", !isFilled && "justify-center", isFilled && "items-center")}>
                         <div
                           className={cn(
                             "flex items-center justify-center rounded-lg border",
@@ -298,7 +303,7 @@ export default function SponsorsPage() {
                             {tier.name}
                           </p>
                           <div className="mt-3 flex items-end gap-1">
-                            <span className="text-5xl font-medium leading-none tracking-[-0.06em]">
+                            <span className="text-[clamp(2.55rem,13vw,3rem)] font-medium leading-none tracking-[-0.06em] sm:text-5xl">
                               {tier.price}
                             </span>
                             <span className="pb-1 text-sm text-zinc-400 dark:text-zinc-600">
@@ -341,7 +346,7 @@ export default function SponsorsPage() {
 
           <LandingContent>
             <section className="grid gap-6 py-12 md:grid-cols-12 md:items-center">
-              <p className="max-w-2xl text-lg font-normal leading-8 tracking-[-0.015em] text-zinc-700 dark:text-zinc-300 md:col-span-7">
+              <p className="max-w-2xl text-base font-normal leading-7 tracking-[-0.015em] text-zinc-700 text-pretty dark:text-zinc-300 sm:text-lg sm:leading-8 md:col-span-7">
                 Want your product seen by developers who care about the last ten percent of interface craft?
               </p>
               <div className="md:col-span-4 md:col-start-9 md:text-right">
