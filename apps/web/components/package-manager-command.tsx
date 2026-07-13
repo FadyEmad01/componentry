@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import { Terminal } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { DocsCodePanel } from "@/components/docs-code-panel"
 import { useSmoothCodeHeight } from "@/hooks/use-smooth-code-height"
 
@@ -16,31 +15,22 @@ export const INSTALL_COMMANDS: Record<PackageManager, string> = {
   bun: "bunx --bun shadcn@latest add",
 }
 
-const highlightCache = new Map<string, string>()
-
-async function fetchHighlightedBash(code: string): Promise<string> {
-  const cached = highlightCache.get(code)
-  if (cached) return cached
-
-  const response = await fetch("/api/docs/source", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ code, lang: "bash" }),
-  })
-
-  if (!response.ok) {
-    throw new Error("Failed to highlight command")
-  }
-
-  const data = (await response.json()) as { html?: string }
-  const html = data.html ?? ""
-  highlightCache.set(code, html)
-  return html
-}
-
 interface PackageManagerCommandProps {
   getCommand: (pm: PackageManager) => string
   defaultPm?: PackageManager
+}
+
+function HighlightedCommand({ command }: { command: string }) {
+  const [commandName, ...rest] = command.split(" ")
+
+  return (
+    <code className="text-sm">
+      <span className="text-violet-500 dark:text-violet-400">{commandName}</span>
+      {rest.length > 0 ? (
+        <span className="text-sky-600 dark:text-sky-300"> {rest.join(" ")}</span>
+      ) : null}
+    </code>
+  )
 }
 
 export function PackageManagerCommand({
@@ -49,61 +39,7 @@ export function PackageManagerCommand({
 }: PackageManagerCommandProps) {
   const [selected, setSelected] = React.useState<PackageManager>(defaultPm)
   const command = getCommand(selected)
-  const [htmlMap, setHtmlMap] = React.useState<Partial<Record<PackageManager, string>>>({})
-  const [visibleHtml, setVisibleHtml] = React.useState("")
-  const [visiblePlain, setVisiblePlain] = React.useState(command)
-  const [isSwitching, setIsSwitching] = React.useState(false)
-
-  const targetHtml = htmlMap[selected]
-  const displayHtml = targetHtml ?? visibleHtml
-  const { contentRef, wrapperProps } = useSmoothCodeHeight([displayHtml, visiblePlain, selected])
-
-  React.useEffect(() => {
-    let cancelled = false
-
-    const prefetchAll = async () => {
-      const entries = await Promise.all(
-        PACKAGE_MANAGERS.map(async (pm) => {
-          const cmd = getCommand(pm)
-          if (highlightCache.has(cmd)) {
-            return { pm, html: highlightCache.get(cmd)! }
-          }
-          try {
-            const html = await fetchHighlightedBash(cmd)
-            return { pm, html }
-          } catch {
-            return null
-          }
-        })
-      )
-
-      if (cancelled) return
-
-      setHtmlMap((prev) => {
-        const next = { ...prev }
-        for (const entry of entries) {
-          if (entry) next[entry.pm] = entry.html
-        }
-        return next
-      })
-    }
-
-    prefetchAll()
-    return () => {
-      cancelled = true
-    }
-  }, [getCommand])
-
-  React.useEffect(() => {
-    setVisiblePlain(command)
-    if (targetHtml) {
-      setIsSwitching(true)
-      setVisibleHtml(targetHtml)
-      const timer = window.setTimeout(() => setIsSwitching(false), 200)
-      return () => window.clearTimeout(timer)
-    }
-    return undefined
-  }, [command, targetHtml])
+  const { contentRef, wrapperProps } = useSmoothCodeHeight([command, selected])
 
   const tabs = PACKAGE_MANAGERS.map((pm) => ({ id: pm, label: pm }))
 
@@ -117,23 +53,10 @@ export function PackageManagerCommand({
       tabListAriaLabel="Package manager"
     >
       <div {...wrapperProps}>
-        <div
-          ref={contentRef}
-          className={cn(
-            "transition-opacity duration-150",
-            (isSwitching || !targetHtml) && "opacity-70"
-          )}
-        >
-          {displayHtml ? (
-            <div
-              className="[&_pre]:overflow-x-auto [&_pre]:p-4 [&_pre]:whitespace-pre"
-              dangerouslySetInnerHTML={{ __html: displayHtml }}
-            />
-          ) : (
-            <pre className="overflow-x-auto whitespace-pre p-4 no-scrollbar">
-              <code className="text-zinc-950 dark:text-zinc-100">{visiblePlain}</code>
-            </pre>
-          )}
+        <div ref={contentRef}>
+          <pre className="max-h-96 overflow-x-auto overflow-y-auto whitespace-pre rounded-lg bg-white p-4 font-mono text-sm leading-5 no-scrollbar dark:!bg-[#121212]">
+            <HighlightedCommand command={command} />
+          </pre>
         </div>
       </div>
     </DocsCodePanel>

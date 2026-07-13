@@ -16,30 +16,30 @@ export function DocsPropsTable({ props, className }: DocsPropsTableProps) {
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-xl border border-border bg-zinc-100 dark:bg-zinc-900/50",
+        "overflow-hidden rounded-lg border border-neutral-200 bg-neutral-200/40 dark:border-neutral-800 dark:bg-[#222222]",
         className
       )}
     >
       <div className="w-full overflow-x-auto">
         <table className="w-full min-w-[520px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-border/50">
-              <th className="px-4 py-3 text-left text-[13px] font-medium text-muted-foreground">
+            <tr className="border-b border-neutral-200 dark:border-neutral-800">
+              <th className="px-4 py-3 text-left text-[13px] font-medium text-neutral-600 dark:text-neutral-400">
                 Property
               </th>
-              <th className="px-4 py-3 text-left text-[13px] font-medium text-muted-foreground w-[28%]">
+              <th className="w-[28%] px-4 py-3 text-left text-[13px] font-medium text-neutral-600 dark:text-neutral-400">
                 Type
               </th>
-              <th className="px-4 py-3 text-left text-[13px] font-medium text-muted-foreground w-[22%]">
+              <th className="w-[22%] px-4 py-3 text-left text-[13px] font-medium text-neutral-600 dark:text-neutral-400">
                 Default
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border/50">
+          <tbody className="divide-y divide-neutral-200 bg-white dark:divide-neutral-800 dark:bg-[#121212]">
             {props.map((prop) => (
               <tr
                 key={prop.name}
-                className="transition-colors hover:bg-zinc-200/35 dark:hover:bg-zinc-800/35"
+                className="transition-colors hover:bg-zinc-100/70 dark:hover:bg-white/[0.035]"
               >
                 <td className="px-4 py-4 align-top">
                   <div className="space-y-1.5">

@@ -38,13 +38,13 @@ export function DocsCodePanel({
       data-code-block
       data-line-numbers="false"
       className={cn(
-        "relative w-full max-w-full overflow-hidden rounded-xl border border-border bg-zinc-100 text-sm dark:bg-zinc-900/50",
+        "not-prose relative flex w-full max-w-full flex-col overflow-clip rounded-lg border border-neutral-200 bg-neutral-200/40 text-sm text-neutral-950 shadow-xs dark:border-neutral-800 dark:bg-[#222222] dark:text-neutral-50",
         className
       )}
     >
-      <div className="flex items-center justify-between gap-3 border-b border-border/50 px-4 py-2">
+      <div className="not-prose flex h-9 items-center justify-between gap-3 px-2 py-1.5 text-sm text-neutral-600 dark:text-neutral-400">
         <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto no-scrollbar">
-          <Icon className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+          <Icon className="size-4 shrink-0" aria-hidden />
 
           {hasTabs && (
             <div
@@ -62,11 +62,11 @@ export function DocsCodePanel({
                     aria-selected={isSelected}
                     onClick={() => onTabChange?.(tab.id)}
                     className={cn(
-                      "shrink-0 rounded-md px-2.5 py-1 text-xs font-normal outline-none transition-colors",
+                      "shrink-0 rounded-md px-2 py-0.5 text-sm font-normal outline-none transition-colors",
                       "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
                       isSelected
-                        ? "bg-zinc-200/80 text-foreground dark:bg-zinc-800/80"
-                        : "text-muted-foreground hover:text-foreground"
+                        ? "text-neutral-950 dark:text-neutral-50"
+                        : "text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-neutral-50"
                     )}
                   >
                     {tab.label}

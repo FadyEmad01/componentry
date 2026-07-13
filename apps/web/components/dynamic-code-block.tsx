@@ -43,6 +43,8 @@ export function DynamicCodeBlock({
   const [variantHtmlMap, setVariantHtmlMap] = React.useState<Record<number, string>>({})
   const [visibleHtml, setVisibleHtml] = React.useState(defaultHtml)
   const [isSwitching, setIsSwitching] = React.useState(false)
+  const hasMountedRef = React.useRef(false)
+  const visibleHtmlRef = React.useRef(defaultHtml)
 
   const tabs = React.useMemo(() => {
     const items: { id: string; label: string }[] = []
@@ -126,10 +128,17 @@ export function DynamicCodeBlock({
 
   React.useEffect(() => {
     if (targetHtml) {
-      setIsSwitching(true)
+      const shouldAnimate = hasMountedRef.current && targetHtml !== visibleHtmlRef.current
+      if (shouldAnimate) {
+        setIsSwitching(true)
+      }
+      visibleHtmlRef.current = targetHtml
       setVisibleHtml(targetHtml)
-      const timer = window.setTimeout(() => setIsSwitching(false), 200)
-      return () => window.clearTimeout(timer)
+      hasMountedRef.current = true
+      if (shouldAnimate) {
+        const timer = window.setTimeout(() => setIsSwitching(false), 200)
+        return () => window.clearTimeout(timer)
+      }
     }
     return undefined
   }, [targetHtml])
@@ -158,7 +167,11 @@ export function DynamicCodeBlock({
       <div
         {...wrapperProps}
         style={resolvedWrapperStyle}
-        className={cn(wrapperProps.className, className?.includes("h-full") && "h-full")}
+        className={cn(
+          wrapperProps.className,
+          "rounded-lg bg-white dark:!bg-[#121212]",
+          className?.includes("h-full") && "h-full"
+        )}
       >
         <div
           ref={contentRef}
@@ -171,7 +184,7 @@ export function DynamicCodeBlock({
           )}
         >
           <div
-            className="[&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:p-4"
+            className="[&_.shiki]:!bg-transparent [&_pre]:!bg-transparent [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:p-4"
             dangerouslySetInnerHTML={{ __html: visibleHtml }}
           />
         </div>

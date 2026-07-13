@@ -125,23 +125,30 @@ export function PageContextMenu({ content, className }: PageContextMenuProps) {
             copied ? "text-foreground" : "text-zinc-600 dark:text-zinc-400"
           )}
         >
-          <span className="relative z-[1] inline-flex items-center gap-2">
-            <span className="relative size-3.5">
-              <Copy
-                className={cn(
-                  "absolute inset-0 size-3.5 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                  copied ? "scale-75 opacity-0" : "scale-100 opacity-100"
-                )}
-              />
-              <Check
-                className={cn(
-                  "absolute inset-0 size-3.5 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-                  copied ? "scale-100 opacity-100" : "scale-75 opacity-0"
-                )}
-              />
+          <span className="relative z-[1] inline-grid w-[9.25rem] overflow-hidden">
+            <span
+              className={cn(
+                "col-start-1 row-start-1 inline-flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                copied
+                  ? "-translate-y-1 opacity-0 blur-[2px]"
+                  : "translate-y-0 opacity-100 blur-0"
+              )}
+            >
+              <Copy className="size-3.5" />
+              <span>Copy as Markdown</span>
             </span>
-            <span className="transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]">
-              {copied ? "Copied" : "Copy as Markdown"}
+            <span
+              className={cn(
+                "col-start-1 row-start-1 inline-flex items-center justify-center gap-2 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                copied
+                  ? "translate-y-0 opacity-100 blur-0"
+                  : "translate-y-1 opacity-0 blur-[2px]"
+              )}
+            >
+              <span className="relative size-3.5">
+                <Check className="absolute inset-0 size-3.5" />
+              </span>
+              <span>Copied</span>
             </span>
           </span>
         </button>
