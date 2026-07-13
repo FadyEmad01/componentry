@@ -82,6 +82,10 @@ const docsImportMap: Record<
     import("@/components/docs/animated-gradient").then((m) => ({
       default: m.AnimatedGradientDocs,
     })),
+  "prism-gradient": () =>
+    import("@/components/docs/prism-gradient").then((m) => ({
+      default: m.PrismGradientDocs,
+    })),
   "liquid-chrome": () =>
     import("@/components/docs/liquid-chrome").then((m) => ({
       default: m.LiquidChromeDocs,

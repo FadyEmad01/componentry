@@ -278,6 +278,16 @@ export const components: Record<string, ComponentMetadata> = {
     previewVideo:
       "https://pub-a50e7f4ea75a4970a1738e50d53b6eb1.r2.dev/preview-videos/hero-backgrounds/animatedgradient.webm",
   },
+  "prism-gradient": {
+    title: "Prism Gradient",
+    description:
+      "A theme-aware WebGL prism field with liquid checkered motion, electric-blue refraction, and tactile grain.",
+    category: "Hero Backgrounds",
+    slug: "prism-gradient",
+    addedAt: "2026-07-13",
+    previewVideo:
+      "https://pub-a50e7f4ea75a4970a1738e50d53b6eb1.r2.dev/preview-videos/hero-backgrounds/prismgradient.webm",
+  },
   "liquid-chrome": {
     title: "Liquid Chrome",
     description: "Premium fluid liquid metal shader background effect.",
