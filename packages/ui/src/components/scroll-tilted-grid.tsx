@@ -11,63 +11,12 @@ import {
   type MotionValue,
 } from "framer-motion";
 import ReactLenis from "lenis/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 export interface ScrollTiltedGridImage {
   src: string;
   alt: string;
 }
-
-export const DEFAULT_TILTED_GRID_IMAGES: readonly ScrollTiltedGridImage[] = [
-  {
-    src: "https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=1200&q=85",
-    alt: "Curved concrete facade in soft daylight",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=85",
-    alt: "Sunlit modern interior with warm timber details",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&w=1200&q=85",
-    alt: "Minimal white house framed by a clear sky",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=85",
-    alt: "Quiet residential facade surrounded by trees",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=85",
-    alt: "Calm apartment interior in a neutral palette",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1449247709967-d4461a6a6103?auto=format&fit=crop&w=1200&q=85",
-    alt: "Bright workspace with white walls and natural wood",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1200&q=85",
-    alt: "Open studio with long tables and tall windows",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=85",
-    alt: "Refined office lounge with dark metal framing",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&fit=crop&w=1200&q=85",
-    alt: "Modern living room with layered neutral textures",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=85",
-    alt: "Geometric concrete architecture viewed from below",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=85",
-    alt: "Contemporary workspace with glass partitions",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1497366858526-0766cadbe8fa?auto=format&fit=crop&w=1200&q=85",
-    alt: "Airy creative studio filled with daylight",
-  },
-];
 
 interface TileConfig {
   aspectRatio: string;
@@ -82,6 +31,8 @@ interface TileConfig {
 const easeIntoFocus = cubicBezier(0.22, 1, 0.36, 1);
 const easeOutOfFocus = cubicBezier(0, 0, 0.58, 1);
 const focusEase = [easeIntoFocus, easeOutOfFocus];
+const useIsomorphicLayoutEffect =
+  typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 function ImageTile({
   image,
@@ -93,10 +44,13 @@ function ImageTile({
   config: TileConfig;
 }) {
   const ref = useRef<HTMLElement>(null);
-  const progress = useMotionValue(0);
+  // The first visible row sits near the viewport midpoint. Starting there
+  // prevents the server-rendered frame from flashing at maximum tilt/blur
+  // before its exact position can be measured during hydration.
+  const progress = useMotionValue(0.5);
   const side = index % 2 === 0 ? -1 : 1;
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const tile = ref.current;
     if (!tile || config.reducedMotion) return;
 
@@ -235,7 +189,7 @@ function ImageTile({
 }
 
 export interface ScrollTiltedGridProps {
-  images?: readonly ScrollTiltedGridImage[];
+  images: readonly ScrollTiltedGridImage[];
   loop?: boolean;
   initialCycles?: number;
   maxCycles?: number;
@@ -250,7 +204,7 @@ export interface ScrollTiltedGridProps {
 }
 
 export function ScrollTiltedGrid({
-  images = DEFAULT_TILTED_GRID_IMAGES,
+  images,
   loop = false,
   initialCycles = 2,
   maxCycles = 4,
@@ -270,7 +224,6 @@ export function ScrollTiltedGrid({
   );
   const sentinelRef = useRef<HTMLDivElement>(null);
   const scrollY = useMotionValue(0);
-  const sourceImages = images.length > 0 ? images : DEFAULT_TILTED_GRID_IMAGES;
 
   useEffect(() => {
     let frame = 0;
@@ -312,9 +265,9 @@ export function ScrollTiltedGrid({
   const renderedImages = useMemo(
     () =>
       Array.from({ length: loop ? cycles : 1 }, (_, cycle) =>
-        sourceImages.map((image, index) => ({ image, index, cycle })),
+        images.map((image, index) => ({ image, index, cycle })),
       ).flat(),
-    [cycles, loop, sourceImages],
+    [cycles, images, loop],
   );
 
   const config = useMemo<TileConfig>(

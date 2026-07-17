@@ -4,8 +4,27 @@ import { readComponentSource } from "@/lib/source-code";
 
 const defaultCode = `import { ScrollTiltedGrid } from "@/components/ui/scroll-tilted-grid"
 
+const images = [
+  {
+    src: "https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=1200&q=85",
+    alt: "Curved concrete facade in soft daylight",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=85",
+    alt: "Sunlit modern interior with warm timber details",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&w=1200&q=85",
+    alt: "Minimal white house framed by a clear sky",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=85",
+    alt: "Quiet residential facade surrounded by trees",
+  },
+]
+
 export default function Gallery() {
-  return <ScrollTiltedGrid />
+  return <ScrollTiltedGrid images={images} />
 }`;
 
 export async function ScrollTiltedGridDocs() {
@@ -34,9 +53,8 @@ export async function ScrollTiltedGridDocs() {
         {
           name: "images",
           type: "readonly ScrollTiltedGridImage[]",
-          default: "Curated architectural set",
           description:
-            "Images to render. Each item includes a src and descriptive alt text.",
+            "Required images to render. Each item includes a src and descriptive alt text.",
         },
         {
           name: "loop",
