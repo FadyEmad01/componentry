@@ -1,3 +1,4 @@
+
 <div align="center">
   <img src="apps/web/public/banner.png" alt="Componentry Banner" width="100%" />
 </div>
