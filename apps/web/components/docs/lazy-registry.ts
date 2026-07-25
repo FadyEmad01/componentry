@@ -18,10 +18,6 @@ const docsImportMap: Record<
     import("@/components/docs/dithered-logo").then((m) => ({
       default: m.DitheredLogoDocs,
     })),
-  "bouncy-accordion": () =>
-    import("@/components/docs/bouncy-accordion").then((m) => ({
-      default: m.BouncyAccordionDocs,
-    })),
   "sticky-scroll-cards": () =>
     import("@/components/docs/sticky-scroll-cards").then((m) => ({
       default: m.StickyScrollCardsDocs,
