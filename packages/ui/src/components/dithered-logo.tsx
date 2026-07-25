@@ -1,392 +1,7 @@
 "use client";
 
 import { cn } from "@workspace/ui/lib/utils";
-import {
-  type CSSProperties,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-
-interface GrayscaleResult {
-  grayscale: Uint8Array;
-  alpha: Uint8Array;
-  width: number;
-  height: number;
-}
-
-interface DitherConfig {
-  threshold: number;
-  serpentine: boolean;
-  diffusionStrength: number;
-}
-
-interface ParticleSystem {
-  count: number;
-  baseX: Float32Array;
-  baseY: Float32Array;
-  offsetX: Float32Array;
-  offsetY: Float32Array;
-  brightness: Float32Array;
-  tint: Float32Array;
-  size: number;
-}
-
-interface Ripple {
-  x: number;
-  y: number;
-  start: number;
-}
-
-const DEFAULTS = {
-  gridSize: 200,
-  scale: 0.5,
-  dotScale: 1,
-  invert: true,
-  cornerRadius: 0.2,
-  threshold: 180,
-  contrast: 0,
-  gamma: 1,
-  blur: 3.75,
-  diffusionStrength: 1,
-  serpentine: true,
-};
-
-const RIPPLE_SPEED = 225;
-const RIPPLE_WIDTH = 37;
-const RIPPLE_FORCE = 20;
-const RIPPLE_DURATION = 675;
-const CURSOR_RADIUS = 100;
-const CURSOR_RADIUS_SQ = CURSOR_RADIUS * CURSOR_RADIUS;
-const CURSOR_FORCE = 40;
-const LERP_FACTOR = 0.12;
-const SNAP_THRESHOLD = 0.01;
-
-const toGrayscaleGrid = (
-  img: HTMLImageElement,
-  maxDim: number,
-  contrast: number,
-  gamma: number,
-  blur: number
-): GrayscaleResult => {
-  const aspect = img.naturalWidth / img.naturalHeight;
-  const outW = aspect >= 1 ? maxDim : Math.round(maxDim * aspect);
-  const outH = aspect >= 1 ? Math.round(maxDim / aspect) : maxDim;
-  const srcW = img.naturalWidth;
-  const srcH = img.naturalHeight;
-
-  const alphaCanvas = document.createElement("canvas");
-  alphaCanvas.width = outW;
-  alphaCanvas.height = outH;
-  const alphaCtx = alphaCanvas.getContext("2d");
-  if (!alphaCtx) {
-    throw new Error("DitheredLogo: unable to create alpha canvas context.");
-  }
-  alphaCtx.imageSmoothingEnabled = true;
-  alphaCtx.imageSmoothingQuality = "high";
-  alphaCtx.drawImage(img, 0, 0, outW, outH);
-  const alphaData = alphaCtx.getImageData(0, 0, outW, outH).data;
-
-  const pad = Math.ceil(blur * 3);
-  const srcCanvas = document.createElement("canvas");
-  srcCanvas.width = srcW + pad * 2;
-  srcCanvas.height = srcH + pad * 2;
-  const srcCtx = srcCanvas.getContext("2d");
-  if (!srcCtx) {
-    throw new Error("DitheredLogo: unable to create source canvas context.");
-  }
-  if (blur > 0) srcCtx.filter = `blur(${blur}px)`;
-  srcCtx.drawImage(img, pad, pad, srcW, srcH);
-  srcCtx.filter = "none";
-
-  const canvas = document.createElement("canvas");
-  canvas.width = outW;
-  canvas.height = outH;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) {
-    throw new Error("DitheredLogo: unable to create processing canvas context.");
-  }
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(srcCanvas, pad, pad, srcW, srcH, 0, 0, outW, outH);
-
-  const pixels = ctx.getImageData(0, 0, outW, outH).data;
-  const grayscale = new Uint8Array(outW * outH);
-  const alpha = new Uint8Array(outW * outH);
-  const cFactor = (259 * (contrast + 255)) / (255 * (259 - contrast));
-
-  for (let y = 0; y < outH; y++) {
-    for (let x = 0; x < outW; x++) {
-      const idx = (y * outW + x) * 4;
-      const blurAlpha = pixels[idx + 3]! / 255;
-      alpha[y * outW + x] = alphaData[idx + 3]!;
-
-      let luma =
-        blurAlpha > 0.01
-          ? (0.299 * pixels[idx]! +
-              0.587 * pixels[idx + 1]! +
-              0.114 * pixels[idx + 2]!) /
-            blurAlpha
-          : 0;
-
-      if (contrast !== 0) luma = cFactor * (luma - 128) + 128;
-      if (gamma !== 1) {
-        luma = 255 * Math.pow(Math.max(0, luma / 255), 1 / gamma);
-      }
-
-      grayscale[y * outW + x] = Math.max(0, Math.min(255, Math.round(luma)));
-    }
-  }
-
-  return { grayscale, alpha, width: outW, height: outH };
-};
-
-const errorDiffusionDither = (
-  grayscale: Uint8Array,
-  width: number,
-  height: number,
-  config: DitherConfig,
-  alpha: Uint8Array
-): Float32Array => {
-  const errors = new Float32Array(width * height);
-  for (let i = 0; i < grayscale.length; i++) errors[i] = grayscale[i]!;
-
-  const positions: number[] = [];
-  const strength = config.diffusionStrength;
-
-  for (let y = 0; y < height; y++) {
-    const ltr = !config.serpentine || y % 2 === 0;
-    const startX = ltr ? 0 : width - 1;
-    const endX = ltr ? width : -1;
-    const step = ltr ? 1 : -1;
-
-    for (let x = startX; x !== endX; x += step) {
-      const idx = y * width + x;
-      if (alpha[idx]! < 128) continue;
-
-      const oldVal = errors[idx]!;
-      const newVal = oldVal > config.threshold ? 255 : 0;
-      const err = (oldVal - newVal) * strength;
-
-      if (newVal > 0) positions.push(x, y);
-
-      const spread = (nx: number, ny: number, weight: number) => {
-        if (nx < 0 || nx >= width || ny < 0 || ny >= height) return;
-        const ni = ny * width + nx;
-        if (alpha[ni]! < 128) return;
-        errors[ni] = errors[ni]! + err * weight;
-      };
-
-      spread(x + step, y, 7 / 16);
-      spread(x - step, y + 1, 3 / 16);
-      spread(x, y + 1, 5 / 16);
-      spread(x + step, y + 1, 1 / 16);
-    }
-  }
-
-  return new Float32Array(positions);
-};
-
-const fetchImage = (src: string): Promise<HTMLImageElement> =>
-  new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-    img.src = src;
-  });
-
-const buildRoundedMask = (
-  w: number,
-  h: number,
-  radiusPct: number
-): Set<number> => {
-  const r = Math.round(radiusPct * Math.min(w, h));
-  const mask = new Set<number>();
-
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      let inside = false;
-      if (x >= r && x < w - r) {
-        inside = true;
-      } else if (y >= r && y < h - r) {
-        inside = true;
-      } else {
-        const cx = x < r ? r : w - r - 1;
-        const cy = y < r ? r : h - r - 1;
-        const dx = x - cx;
-        const dy = y - cy;
-        inside = dx * dx + dy * dy <= r * r;
-      }
-      if (inside) mask.add(y * w + x);
-    }
-  }
-
-  return mask;
-};
-
-const applyMaskInversion = (
-  positions: Float32Array,
-  gridW: number,
-  gridH: number,
-  radiusPct: number,
-  alpha: Uint8Array
-): Float32Array => {
-  const mask = buildRoundedMask(gridW, gridH, radiusPct);
-  const filled = new Set<number>();
-
-  for (let i = 0; i < positions.length; i += 2) {
-    filled.add(Math.round(positions[i + 1]!) * gridW + Math.round(positions[i]!));
-  }
-
-  const result: number[] = [];
-  for (const idx of mask) {
-    if (!filled.has(idx)) {
-      if (alpha[idx]! < 128) continue;
-      result.push(idx % gridW, Math.floor(idx / gridW));
-    }
-  }
-
-  return new Float32Array(result);
-};
-
-const initParticles = (
-  points: Float32Array,
-  scaleFactor: number,
-  dotScale: number,
-  originX: number,
-  originY: number
-): ParticleSystem => {
-  const count = points.length / 2;
-  const baseX = new Float32Array(count);
-  const baseY = new Float32Array(count);
-  const offsetX = new Float32Array(count);
-  const offsetY = new Float32Array(count);
-  const brightness = new Float32Array(count);
-  const tint = new Float32Array(count);
-
-  for (let i = 0; i < count; i++) {
-    baseX[i] = originX + points[i * 2]! * scaleFactor;
-    baseY[i] = originY + points[i * 2 + 1]! * scaleFactor;
-    brightness[i] = 1;
-    tint[i] = 1;
-  }
-
-  return {
-    count,
-    baseX,
-    baseY,
-    offsetX,
-    offsetY,
-    brightness,
-    tint,
-    size: scaleFactor * dotScale,
-  };
-};
-
-const stepParticles = (
-  sys: ParticleSystem,
-  cursorX: number,
-  cursorY: number,
-  cursorActive: boolean,
-  ripples: Ripple[],
-  now: number
-): boolean => {
-  const { count, baseX, baseY, offsetX, offsetY } = sys;
-
-  for (let k = ripples.length - 1; k >= 0; k--) {
-    if (now - ripples[k]!.start >= RIPPLE_DURATION) ripples.splice(k, 1);
-  }
-
-  const numRipples = ripples.length;
-  const rippleMul = numRipples > 0 ? 1 + 0.5 * (numRipples - 1) : 0;
-  let hasMotion = false;
-
-  for (let i = 0; i < count; i++) {
-    let fx = 0;
-    let fy = 0;
-
-    if (cursorActive) {
-      const vx = baseX[i]! + offsetX[i]! - cursorX;
-      const vy = baseY[i]! + offsetY[i]! - cursorY;
-      const d2 = vx * vx + vy * vy;
-      if (d2 > 0.1 && d2 < CURSOR_RADIUS_SQ) {
-        const d = Math.sqrt(d2);
-        const f = (1 - d / CURSOR_RADIUS) ** 3 * CURSOR_FORCE;
-        fx += (vx / d) * f;
-        fy += (vy / d) * f;
-      }
-    }
-
-    for (let k = 0; k < numRipples; k++) {
-      const ripple = ripples[k]!;
-      const elapsed = now - ripple.start;
-      const radius = (elapsed / 1000) * RIPPLE_SPEED;
-      const life = 1 - elapsed / RIPPLE_DURATION;
-      const sx = baseX[i]! - ripple.x;
-      const sy = baseY[i]! - ripple.y;
-      const d = Math.sqrt(sx * sx + sy * sy);
-      if (d < 0.1) continue;
-      const band = Math.abs(d - radius);
-      if (band < RIPPLE_WIDTH) {
-        const wf = (1 - band / RIPPLE_WIDTH) * life * RIPPLE_FORCE * rippleMul;
-        fx += (sx / d) * wf;
-        fy += (sy / d) * wf;
-      }
-    }
-
-    offsetX[i] = offsetX[i]! + (fx - offsetX[i]!) * LERP_FACTOR;
-    offsetY[i] = offsetY[i]! + (fy - offsetY[i]!) * LERP_FACTOR;
-    if (Math.abs(offsetX[i]!) < SNAP_THRESHOLD) offsetX[i] = 0;
-    if (Math.abs(offsetY[i]!) < SNAP_THRESHOLD) offsetY[i] = 0;
-    if (offsetX[i] !== 0 || offsetY[i] !== 0) hasMotion = true;
-  }
-
-  return hasMotion || numRipples > 0 || cursorActive;
-};
-
-const drawParticles = (
-  ctx: CanvasRenderingContext2D,
-  sys: ParticleSystem,
-  particleColor: string,
-  canvasW: number,
-  canvasH: number,
-  dpr: number
-) => {
-  ctx.clearRect(0, 0, canvasW * dpr, canvasH * dpr);
-
-  const buckets: number[][] = new Array(126);
-
-  for (let i = 0; i < 126; i++) buckets[i] = [];
-
-  for (let i = 0; i < sys.count; i++) {
-    const bucket =
-      6 * Math.round(20 * sys.brightness[i]!) + Math.round(5 * sys.tint[i]!);
-    buckets[Math.max(0, Math.min(125, bucket))]!.push(i);
-  }
-
-  const size = sys.size * dpr;
-  const pad = 0.25 * dpr;
-  const padSize = 0.5 * dpr;
-
-  for (let z = 0; z < 126; z++) {
-    const ids = buckets[z]!;
-    if (ids.length === 0) continue;
-    const alpha = Math.floor(z / 6) / 20;
-    ctx.fillStyle = particleColor;
-    ctx.globalAlpha = alpha;
-
-    for (let j = 0; j < ids.length; j++) {
-      const i = ids[j]!;
-      const rx = (sys.baseX[i]! + sys.offsetX[i]!) * dpr;
-      const ry = (sys.baseY[i]! + sys.offsetY[i]!) * dpr;
-      ctx.fillRect(rx - pad, ry - pad, size + padSize, size + padSize);
-    }
-  }
-
-  ctx.globalAlpha = 1;
-};
+import { type CSSProperties, useEffect, useRef } from "react";
 
 export interface DitheredLogoProps {
   imageSrc: string;
@@ -406,298 +21,455 @@ export interface DitheredLogoProps {
   className?: string;
 }
 
+type PointCloud = {
+  x: Float32Array;
+  y: Float32Array;
+  dx: Float32Array;
+  dy: Float32Array;
+  dotSize: number;
+};
+
+type Wave = { x: number; y: number; bornAt: number };
+
+const defaults = {
+  gridSize: 200,
+  scale: 0.5,
+  dotScale: 1,
+  invert: true,
+  cornerRadius: 0.2,
+  threshold: 180,
+  contrast: 0,
+  gamma: 1,
+  blur: 3.75,
+  diffusionStrength: 1,
+  serpentine: true,
+};
+
+function loadAsset(source: string, signal: AbortSignal) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    const abort = () => reject(new DOMException("Aborted", "AbortError"));
+    image.crossOrigin = "anonymous";
+    image.onload = () => {
+      signal.removeEventListener("abort", abort);
+      resolve(image);
+    };
+    image.onerror = () => reject(new Error(`Unable to load image: ${source}`));
+    signal.addEventListener("abort", abort, { once: true });
+    image.src = source;
+  });
+}
+
+function sampleImage(
+  image: HTMLImageElement,
+  maxDimension: number,
+  contrast: number,
+  gamma: number,
+  blur: number,
+) {
+  const ratio = image.naturalWidth / image.naturalHeight;
+  const width = Math.max(
+    1,
+    Math.round(ratio >= 1 ? maxDimension : maxDimension * ratio),
+  );
+  const height = Math.max(
+    1,
+    Math.round(ratio >= 1 ? maxDimension / ratio : maxDimension),
+  );
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (!context) throw new Error("DitheredLogo could not create a 2D context.");
+
+  context.clearRect(0, 0, width, height);
+  context.filter = blur > 0 ? `blur(${blur}px)` : "none";
+  context.drawImage(image, 0, 0, width, height);
+  context.filter = "none";
+
+  const pixels = context.getImageData(0, 0, width, height).data;
+  const luminance = new Float32Array(width * height);
+  const alpha = new Uint8Array(width * height);
+  const contrastScale =
+    contrast === 0 ? 1 : (259 * (contrast + 255)) / (255 * (259 - contrast));
+
+  for (let pixel = 0; pixel < width * height; pixel++) {
+    const offset = pixel * 4;
+    alpha[pixel] = pixels[offset + 3]!;
+    const luma =
+      pixels[offset]! * 0.2126 +
+      pixels[offset + 1]! * 0.7152 +
+      pixels[offset + 2]! * 0.0722;
+    const contrasted = contrastScale * (luma - 128) + 128;
+    luminance[pixel] =
+      255 *
+      Math.pow(
+        Math.min(1, Math.max(0, contrasted / 255)),
+        1 / Math.max(0.01, gamma),
+      );
+  }
+
+  return { width, height, luminance, alpha };
+}
+
+function insideRoundedRect(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+) {
+  const r = Math.max(0, Math.min(Math.min(width, height) / 2, radius));
+  const nearX = x < r ? r : x > width - r - 1 ? width - r - 1 : x;
+  const nearY = y < r ? r : y > height - r - 1 ? height - r - 1 : y;
+  return (x - nearX) ** 2 + (y - nearY) ** 2 <= r ** 2;
+}
+
+function diffuse(
+  input: Float32Array,
+  alpha: Uint8Array,
+  width: number,
+  height: number,
+  threshold: number,
+  strength: number,
+  serpentine: boolean,
+  invert: boolean,
+  cornerRadius: number,
+) {
+  const values = input.slice();
+  const output: number[] = [];
+  const addError = (x: number, y: number, error: number, weight: number) => {
+    if (x < 0 || x >= width || y < 0 || y >= height) return;
+    const index = y * width + x;
+    if (alpha[index]! < 128) return;
+    values[index] = values[index]! + error * weight * strength;
+  };
+
+  for (let y = 0; y < height; y++) {
+    const reverse = serpentine && y % 2 === 1;
+    for (let column = 0; column < width; column++) {
+      const x = reverse ? width - column - 1 : column;
+      const index = y * width + x;
+      if (alpha[index]! < 128) continue;
+      const on = values[index]! >= threshold;
+      const chosen = on ? 255 : 0;
+      const error = values[index]! - chosen;
+      const direction = reverse ? -1 : 1;
+
+      if (
+        (invert ? !on : on) &&
+        (!invert ||
+          insideRoundedRect(
+            x,
+            y,
+            width,
+            height,
+            cornerRadius * Math.min(width, height),
+          ))
+      ) {
+        output.push(x, y);
+      }
+
+      addError(x + direction, y, error, 7 / 16);
+      addError(x - direction, y + 1, error, 3 / 16);
+      addError(x, y + 1, error, 5 / 16);
+      addError(x + direction, y + 1, error, 1 / 16);
+    }
+  }
+  return new Float32Array(output);
+}
+
+function createCloud(
+  points: Float32Array,
+  gridWidth: number,
+  gridHeight: number,
+  canvasWidth: number,
+  canvasHeight: number,
+  scale: number,
+  dotScale: number,
+): PointCloud {
+  const unit =
+    (Math.min(canvasWidth, canvasHeight) * scale) /
+    Math.max(gridWidth, gridHeight);
+  const originX = (canvasWidth - gridWidth * unit) / 2;
+  const originY = (canvasHeight - gridHeight * unit) / 2;
+  const count = points.length / 2;
+  const x = new Float32Array(count);
+  const y = new Float32Array(count);
+
+  for (let index = 0; index < count; index++) {
+    x[index] = originX + points[index * 2]! * unit;
+    y[index] = originY + points[index * 2 + 1]! * unit;
+  }
+
+  return {
+    x,
+    y,
+    dx: new Float32Array(count),
+    dy: new Float32Array(count),
+    dotSize: Math.max(0.5, unit * dotScale),
+  };
+}
+
+class ParticleRenderer {
+  private frame = 0;
+  private cloud: PointCloud | null = null;
+  private pointer = { x: 0, y: 0, active: false };
+  private waves: Wave[] = [];
+  private color = "#000";
+
+  constructor(
+    private canvas: HTMLCanvasElement,
+    private context: CanvasRenderingContext2D,
+  ) {}
+
+  setCloud(cloud: PointCloud) {
+    this.cloud = cloud;
+    this.play();
+  }
+
+  setColor(color: string) {
+    this.color = color;
+    this.play();
+  }
+
+  movePointer(x: number, y: number) {
+    this.pointer = { x, y, active: true };
+    this.play();
+  }
+
+  releasePointer() {
+    this.pointer.active = false;
+    this.play();
+  }
+
+  addWave(x: number, y: number) {
+    this.waves.push({ x, y, bornAt: performance.now() });
+    this.play();
+  }
+
+  resize(width: number, height: number) {
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    this.canvas.width = Math.max(1, Math.round(width * dpr));
+    this.canvas.height = Math.max(1, Math.round(height * dpr));
+    this.context.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  stop() {
+    cancelAnimationFrame(this.frame);
+    this.frame = 0;
+  }
+
+  private play = () => {
+    if (!this.frame) this.frame = requestAnimationFrame(this.tick);
+  };
+
+  private tick = (now: number) => {
+    this.frame = 0;
+    const cloud = this.cloud;
+    if (!cloud) return;
+    const bounds = this.canvas.getBoundingClientRect();
+    this.waves = this.waves.filter((wave) => now - wave.bornAt < 720);
+    let moving = this.pointer.active || this.waves.length > 0;
+
+    this.context.clearRect(0, 0, bounds.width, bounds.height);
+    this.context.fillStyle = this.color;
+
+    for (let index = 0; index < cloud.x.length; index++) {
+      let forceX = 0;
+      let forceY = 0;
+      const px = cloud.x[index]!;
+      const py = cloud.y[index]!;
+
+      if (this.pointer.active) {
+        const vx = px + cloud.dx[index]! - this.pointer.x;
+        const vy = py + cloud.dy[index]! - this.pointer.y;
+        const distance = Math.hypot(vx, vy);
+        if (distance > 0.1 && distance < 100) {
+          const strength = (1 - distance / 100) ** 2 * 38;
+          forceX += (vx / distance) * strength;
+          forceY += (vy / distance) * strength;
+        }
+      }
+
+      for (const wave of this.waves) {
+        const age = now - wave.bornAt;
+        const vx = px - wave.x;
+        const vy = py - wave.y;
+        const distance = Math.hypot(vx, vy);
+        const ring = Math.abs(distance - age * 0.23);
+        if (distance > 0.1 && ring < 38) {
+          const strength = (1 - ring / 38) * (1 - age / 720) * 20;
+          forceX += (vx / distance) * strength;
+          forceY += (vy / distance) * strength;
+        }
+      }
+
+      cloud.dx[index] = cloud.dx[index]! * 0.84 + forceX * 0.16;
+      cloud.dy[index] = cloud.dy[index]! * 0.84 + forceY * 0.16;
+      if (
+        Math.abs(cloud.dx[index]!) > 0.02 ||
+        Math.abs(cloud.dy[index]!) > 0.02
+      ) {
+        moving = true;
+      } else {
+        cloud.dx[index] = 0;
+        cloud.dy[index] = 0;
+      }
+      this.context.fillRect(
+        px + cloud.dx[index]!,
+        py + cloud.dy[index]!,
+        cloud.dotSize,
+        cloud.dotSize,
+      );
+    }
+
+    if (moving) this.play();
+  };
+}
+
 export function DitheredLogo({
   imageSrc,
-  gridSize = DEFAULTS.gridSize,
-  scale = DEFAULTS.scale,
-  dotScale = DEFAULTS.dotScale,
-  invert = DEFAULTS.invert,
-  cornerRadius = DEFAULTS.cornerRadius,
-  threshold = DEFAULTS.threshold,
-  contrast = DEFAULTS.contrast,
-  gamma = DEFAULTS.gamma,
-  blur = DEFAULTS.blur,
-  diffusionStrength = DEFAULTS.diffusionStrength,
-  serpentine = DEFAULTS.serpentine,
+  gridSize = defaults.gridSize,
+  scale = defaults.scale,
+  dotScale = defaults.dotScale,
+  invert = defaults.invert,
+  cornerRadius = defaults.cornerRadius,
+  threshold = defaults.threshold,
+  contrast = defaults.contrast,
+  gamma = defaults.gamma,
+  blur = defaults.blur,
+  diffusionStrength = defaults.diffusionStrength,
+  serpentine = defaults.serpentine,
   particleColor = "currentColor",
   style,
   className,
 }: DitheredLogoProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const systemRef = useRef<ParticleSystem | null>(null);
-  const cursorRef = useRef({ x: 0, y: 0, active: false });
-  const ripplesRef = useRef<Ripple[]>([]);
-  const animFrameRef = useRef(0);
-  const runningRef = useRef(false);
-  const prevConfigRef = useRef("");
-  const [isMobile, setIsMobile] = useState(false);
-
-  const resolveParticleColor = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return particleColor;
-    return particleColor === "currentColor"
-      ? getComputedStyle(canvas).color
-      : particleColor;
-  }, [particleColor]);
 
   useEffect(() => {
-    const mq = window.matchMedia("(max-width: 640px)");
-    setIsMobile(mq.matches);
-    const handler = (event: MediaQueryListEvent) => setIsMobile(event.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
-  const startLoop = useCallback(() => {
-    if (runningRef.current) return;
-
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const context = canvas?.getContext("2d");
+    if (!canvas || !context) return;
+    const renderer = new ParticleRenderer(canvas, context);
+    const abortController = new AbortController();
+    let sampled: ReturnType<typeof sampleImage> | null = null;
+    let points: Float32Array | null = null;
+    let rebuildFrame = 0;
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    runningRef.current = true;
-    const dpr = window.devicePixelRatio || 1;
-
-    const tick = () => {
-      const sys = systemRef.current;
-      if (!sys) {
-        runningRef.current = false;
-        return;
-      }
-
-      const rect = canvas.getBoundingClientRect();
-      const needsMore = stepParticles(
-        sys,
-        cursorRef.current.x,
-        cursorRef.current.y,
-        cursorRef.current.active,
-        ripplesRef.current,
-        performance.now()
+    const resolveColor = () =>
+      particleColor === "currentColor"
+        ? getComputedStyle(canvas).color
+        : particleColor;
+    const rebuildCloud = () => {
+      if (!sampled || !points) return;
+      const bounds = canvas.getBoundingClientRect();
+      renderer.resize(bounds.width, bounds.height);
+      renderer.setColor(resolveColor());
+      renderer.setCloud(
+        createCloud(
+          points,
+          sampled.width,
+          sampled.height,
+          bounds.width,
+          bounds.height,
+          scale,
+          dotScale * (bounds.width <= 640 ? 0.8 : 1),
+        ),
       );
-
-      drawParticles(ctx, sys, resolveParticleColor(), rect.width, rect.height, dpr);
-
-      if (needsMore) {
-        animFrameRef.current = requestAnimationFrame(tick);
-      } else {
-        runningRef.current = false;
-      }
+    };
+    const scheduleRebuild = () => {
+      cancelAnimationFrame(rebuildFrame);
+      rebuildFrame = requestAnimationFrame(rebuildCloud);
+    };
+    const localPoint = (event: PointerEvent) => {
+      const bounds = canvas.getBoundingClientRect();
+      return { x: event.clientX - bounds.left, y: event.clientY - bounds.top };
+    };
+    const onMove = (event: PointerEvent) => {
+      const point = localPoint(event);
+      renderer.movePointer(point.x, point.y);
+    };
+    const onLeave = () => renderer.releasePointer();
+    const onUp = (event: PointerEvent) => {
+      const point = localPoint(event);
+      renderer.addWave(point.x, point.y);
+      if (event.pointerType !== "mouse") renderer.releasePointer();
     };
 
-    animFrameRef.current = requestAnimationFrame(tick);
-  }, [resolveParticleColor]);
-
-  const rebuild = useCallback(
-    async (src: string) => {
-      const canvas = canvasRef.current;
-      if (!canvas || !src) return;
-
-      try {
-        const img = await fetchImage(src);
-        const rect = canvas.getBoundingClientRect();
-        const processed = toGrayscaleGrid(img, gridSize, contrast, gamma, blur);
-        const { width: gridW, height: gridH } = processed;
-
-        let positions = errorDiffusionDither(
-          processed.grayscale,
-          gridW,
-          gridH,
-          { threshold, serpentine, diffusionStrength },
-          processed.alpha
-        );
-
-        if (invert) {
-          positions = applyMaskInversion(
-            positions,
-            gridW,
-            gridH,
-            cornerRadius,
-            processed.alpha
-          );
-        }
-
-        const scaleFactor = Math.max(
-          0.5,
-          (Math.min(rect.width, rect.height) * scale) / Math.max(gridW, gridH)
-        );
-        const originX = Math.round((rect.width - gridW * scaleFactor) / 2);
-        const originY = Math.round((rect.height - gridH * scaleFactor) / 2);
-        const responsiveDotScale = isMobile ? dotScale * 0.8 : dotScale;
-
-        systemRef.current = initParticles(
-          positions,
-          scaleFactor,
-          responsiveDotScale,
-          originX,
-          originY
-        );
-        startLoop();
-      } catch (error) {
-        console.error("DitheredLogo: failed to process image", error);
-      }
-    },
-    [
-      gridSize,
-      scale,
-      dotScale,
-      invert,
-      cornerRadius,
-      threshold,
-      contrast,
-      gamma,
-      blur,
-      diffusionStrength,
-      serpentine,
-      isMobile,
-      startLoop,
-    ]
-  );
-
-  useEffect(() => {
-    const key = JSON.stringify([
-      imageSrc,
-      gridSize,
-      scale,
-      dotScale,
-      invert,
-      cornerRadius,
-      threshold,
-      contrast,
-      gamma,
-      blur,
-      diffusionStrength,
-      serpentine,
-      isMobile,
-    ]);
-
-    if (key === prevConfigRef.current) return;
-    prevConfigRef.current = key;
-    rebuild(imageSrc);
-  }, [
-    imageSrc,
-    gridSize,
-    scale,
-    dotScale,
-    invert,
-    cornerRadius,
-    threshold,
-    contrast,
-    gamma,
-    blur,
-    diffusionStrength,
-    serpentine,
-    isMobile,
-    rebuild,
-  ]);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let resizeTimer: ReturnType<typeof setTimeout> | null = null;
-    let lastW = 0;
-    let lastH = 0;
-
-    const handleResize = () => {
-      const rect = canvas.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = Math.max(1, Math.round(rect.width * dpr));
-      canvas.height = Math.max(1, Math.round(rect.height * dpr));
-
-      const sys = systemRef.current;
-      if (sys) {
-        drawParticles(
-          ctx,
-          sys,
-          resolveParticleColor(),
-          rect.width,
-          rect.height,
-          dpr
-        );
-      }
-
-      const w = Math.round(rect.width);
-      const h = Math.round(rect.height);
-      if (lastW !== 0 && (w !== lastW || h !== lastH)) {
-        if (resizeTimer) clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => rebuild(imageSrc), 200);
-      }
-      lastW = w;
-      lastH = h;
-    };
-
-    const onPointerMove = (event: PointerEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      cursorRef.current.x = event.clientX - rect.left;
-      cursorRef.current.y = event.clientY - rect.top;
-      cursorRef.current.active = true;
-      startLoop();
-    };
-
-    const onPointerLeave = (event: PointerEvent) => {
-      if (event.pointerType !== "mouse") return;
-      cursorRef.current.active = false;
-      startLoop();
-    };
-
-    const onPointerCancel = () => {
-      cursorRef.current.active = false;
-      startLoop();
-    };
-
-    const onPointerUp = (event: PointerEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      ripplesRef.current.push({
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top,
-        start: performance.now(),
-      });
-
-      if (event.pointerType !== "mouse") cursorRef.current.active = false;
-      startLoop();
-    };
-
-    handleResize();
-    const resizeObserver = new ResizeObserver(handleResize);
-    const themeObserver = new MutationObserver(() => handleResize());
-    resizeObserver.observe(canvas);
+    const observer = new ResizeObserver(scheduleRebuild);
+    const themeObserver = new MutationObserver(() =>
+      renderer.setColor(resolveColor()),
+    );
+    observer.observe(canvas);
     themeObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class", "style"],
     });
-    canvas.addEventListener("pointermove", onPointerMove);
-    canvas.addEventListener("pointerleave", onPointerLeave);
-    canvas.addEventListener("pointercancel", onPointerCancel);
-    canvas.addEventListener("pointerup", onPointerUp);
+    canvas.addEventListener("pointermove", onMove);
+    canvas.addEventListener("pointerleave", onLeave);
+    canvas.addEventListener("pointercancel", onLeave);
+    canvas.addEventListener("pointerup", onUp);
+
+    loadAsset(imageSrc, abortController.signal)
+      .then((image) => {
+        sampled = sampleImage(image, gridSize, contrast, gamma, blur);
+        points = diffuse(
+          sampled.luminance,
+          sampled.alpha,
+          sampled.width,
+          sampled.height,
+          threshold,
+          diffusionStrength,
+          serpentine,
+          invert,
+          cornerRadius,
+        );
+        rebuildCloud();
+      })
+      .catch((error: unknown) => {
+        if (!(error instanceof DOMException && error.name === "AbortError")) {
+          console.error("DitheredLogo: failed to prepare image", error);
+        }
+      });
 
     return () => {
-      cancelAnimationFrame(animFrameRef.current);
-      runningRef.current = false;
-      if (resizeTimer) clearTimeout(resizeTimer);
-      resizeObserver.disconnect();
+      abortController.abort();
+      cancelAnimationFrame(rebuildFrame);
+      renderer.stop();
+      observer.disconnect();
       themeObserver.disconnect();
-      canvas.removeEventListener("pointermove", onPointerMove);
-      canvas.removeEventListener("pointerleave", onPointerLeave);
-      canvas.removeEventListener("pointercancel", onPointerCancel);
-      canvas.removeEventListener("pointerup", onPointerUp);
+      canvas.removeEventListener("pointermove", onMove);
+      canvas.removeEventListener("pointerleave", onLeave);
+      canvas.removeEventListener("pointercancel", onLeave);
+      canvas.removeEventListener("pointerup", onUp);
     };
-  }, [startLoop, rebuild, imageSrc, resolveParticleColor]);
+  }, [
+    blur,
+    contrast,
+    cornerRadius,
+    diffusionStrength,
+    dotScale,
+    gamma,
+    gridSize,
+    imageSrc,
+    invert,
+    particleColor,
+    scale,
+    serpentine,
+    threshold,
+  ]);
 
   return (
     <div
       className={cn("relative h-60 w-60 text-black", className)}
-      style={{
-        ...style,
-      }}
+      style={style}
     >
       <canvas
         ref={canvasRef}
         className="absolute inset-0 block h-full w-full touch-none"
+        aria-label="Interactive dithered image"
+        role="img"
       />
     </div>
   );

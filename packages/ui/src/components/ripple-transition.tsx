@@ -1,628 +1,510 @@
 "use client";
 
 import {
+  WebGLErrorBoundary,
+  WebGLFallback,
+} from "@workspace/ui/components/webgl-error-boundary";
+import { cn } from "@workspace/ui/lib/utils";
+import {
   animate,
   type AnimationPlaybackControls,
   type Easing,
 } from "framer-motion";
-import { cn } from "@workspace/ui/lib/utils";
-import { WebGLErrorBoundary, WebGLFallback } from "@workspace/ui/components/webgl-error-boundary";
 import * as React from "react";
 
-export interface RippleTransitionProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "children" | "onClick"> {
-  /** Images to transition between. Use at least two images for the ripple swap. */
+export interface RippleTransitionProps extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  "children" | "onClick"
+> {
   images?: readonly string[];
-  /** Transition duration in seconds. */
   duration?: number;
-  /** Easing curve used by Framer Motion. */
   ease?: Easing;
-  /** Automatically trigger transitions on an interval. */
   autoPlay?: boolean;
-  /** Delay between automatic transitions in milliseconds. */
   autoPlayInterval?: number;
-  /** Start point for autoplay ripples. */
   autoPlayOrigin?: "center" | "random";
-  /** Speed of the expanding wavefront. */
   waveSpeed?: number;
-  /** Thickness of the main ripple band. */
   sigma?: number;
-  /** Frequency of the small concentric ripples. */
   waveFreq?: number;
-  /** Amount of radial image displacement. */
   pushAmt?: number;
-  /** Chromatic aberration strength. */
   caStrength?: number;
-  /** Bloom-like highlight strength on the wave. */
   glow?: number;
-  /** Noise applied to the ripple edge. */
   noiseWarp?: number;
-  /** Adds a subtle inward pull at the ripple origin. */
   pinch?: boolean;
-  /** Root border radius in pixels. */
   borderRadius?: number;
-  /** Canvas fallback background. */
   background?: string;
-  /** Accessible label for the interactive region. */
   label?: string;
 }
 
-const DEFAULT_IMAGES = [
+const sampleImages = [
   "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&q=85&w=1800",
   "https://images.unsplash.com/photo-1473773508845-188df298d2d1?auto=format&fit=crop&q=85&w=1800",
   "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&q=85&w=1800",
 ] as const;
 
-const DEFAULTS = {
-  waveSpeed: 1.6,
-  sigma: 0.15,
-  waveFreq: 5,
-  pushAmt: 0.145,
-  caStrength: 0.02,
-  glow: 0.73,
-  noiseWarp: 1,
-  duration: 1.4,
-  ease: "easeInOut" as Easing,
-  autoPlay: false,
-  autoPlayInterval: 3200,
-  autoPlayOrigin: "center" as const,
-  pinch: false,
-  borderRadius: 24,
-  background: "#111416",
+type RippleSettings = {
+  waveSpeed: number;
+  sigma: number;
+  waveFreq: number;
+  pushAmt: number;
+  caStrength: number;
+  glow: number;
+  noiseWarp: number;
+  pinch: boolean;
 };
 
-const VERT = `
-attribute vec2 a_pos;
-varying vec2 v_uv;
+type Picture = { element: HTMLImageElement; width: number; height: number };
 
+const vertexSource = `
+attribute vec2 position;
+varying vec2 uv;
 void main() {
-  v_uv = vec2(a_pos.x * 0.5 + 0.5, 0.5 - a_pos.y * 0.5);
-  gl_Position = vec4(a_pos, 0.0, 1.0);
-}
-`;
+  uv = vec2(position.x * .5 + .5, .5 - position.y * .5);
+  gl_Position = vec4(position, 0., 1.);
+}`;
 
-const FRAG = `
+const fragmentSource = `
 precision highp float;
+varying vec2 uv;
+uniform sampler2D fromImage;
+uniform sampler2D toImage;
+uniform vec2 viewport;
+uniform vec2 fromSize;
+uniform vec2 toSize;
+uniform vec2 origin;
+uniform float phase;
+uniform float speed;
+uniform float thickness;
+uniform float frequency;
+uniform float displacement;
+uniform float chroma;
+uniform float highlight;
+uniform float roughness;
+uniform float pinchAmount;
 
-uniform sampler2D u_texA;
-uniform sampler2D u_texB;
-uniform vec2 u_resolution;
-uniform vec2 u_texASize;
-uniform vec2 u_texBSize;
-uniform vec2 u_center;
-uniform float u_progress;
-uniform float u_waveSpeed;
-uniform float u_sigma;
-uniform float u_waveFreq;
-uniform float u_pushAmt;
-uniform float u_caStrength;
-uniform float u_glow;
-uniform float u_noiseWarp;
-uniform float u_swap;
-uniform float u_pinch;
-
-varying vec2 v_uv;
-
-float hash21(vec2 p) {
-  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
-  p3 += dot(p3, p3.yzx + 33.33);
-  return fract((p3.x + p3.y) * p3.z);
+float random2(vec2 p) {
+  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
 }
 
-float vnoise(vec2 p) {
-  vec2 i = floor(p);
-  vec2 f = fract(p);
-  vec2 u = f * f * (3.0 - 2.0 * f);
-  float a = hash21(i);
-  float b = hash21(i + vec2(1.0, 0.0));
-  float c = hash21(i + vec2(0.0, 1.0));
-  float d = hash21(i + vec2(1.0, 1.0));
-  return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+float smoothNoise(vec2 p) {
+  vec2 cell = floor(p);
+  vec2 local = fract(p);
+  local = local * local * (3. - 2. * local);
+  return mix(
+    mix(random2(cell), random2(cell + vec2(1., 0.)), local.x),
+    mix(random2(cell + vec2(0., 1.)), random2(cell + vec2(1.)), local.x),
+    local.y
+  );
 }
 
-float fbm(vec2 p, int octaves) {
-  float val = 0.0;
-  float amp = 0.5;
-  float freq = 1.0;
-
-  for (int i = 0; i < 8; i++) {
-    if (i >= octaves) break;
-    val += amp * vnoise(p * freq);
-    freq *= 2.0;
-    amp *= 0.5;
-  }
-
-  return val;
+float layeredNoise(vec2 p) {
+  return smoothNoise(p) * .57 +
+    smoothNoise(p * 2.07 + 4.3) * .29 +
+    smoothNoise(p * 4.21 - 2.8) * .14;
 }
 
-vec2 coverUv(vec2 uv, vec2 textureSize, vec2 resolution) {
-  float textureAspect = textureSize.x / textureSize.y;
-  float canvasAspect = resolution.x / resolution.y;
-  vec2 scale = vec2(1.0);
+vec2 cover(vec2 point, vec2 media, vec2 frame) {
+  float mediaRatio = media.x / media.y;
+  float frameRatio = frame.x / frame.y;
+  vec2 crop = frameRatio > mediaRatio
+    ? vec2(1., mediaRatio / frameRatio)
+    : vec2(frameRatio / mediaRatio, 1.);
+  return (point - .5) * crop + .5;
+}
 
-  if (canvasAspect > textureAspect) {
-    scale.y = textureAspect / canvasAspect;
-  } else {
-    scale.x = canvasAspect / textureAspect;
-  }
-
-  return (uv - 0.5) * scale + 0.5;
+vec3 splitSample(sampler2D image, vec2 size, vec2 point, vec2 split) {
+  return vec3(
+    texture2D(image, cover(point - split, size, viewport)).r,
+    texture2D(image, cover(point, size, viewport)).g,
+    texture2D(image, cover(point + split, size, viewport)).b
+  );
 }
 
 void main() {
-  vec2 uv = v_uv;
-  vec2 size = u_resolution;
-  vec2 center = u_center;
+  float aspect = viewport.x / viewport.y;
+  vec2 radial = uv - origin;
+  radial.x *= aspect;
+  float distanceFromOrigin = length(radial);
+  float farthest = length(vec2(aspect, 1.));
+  float distance01 = distanceFromOrigin * 2. / farthest;
+  float agitation = (layeredNoise(radial * 9. + phase * 1.8) - .5) * roughness;
+  float boundary = phase * speed;
+  float signedDistance = distance01 + agitation - boundary;
+  float wave = exp(-(signedDistance * signedDistance) / max(.0001, 2. * thickness * thickness));
+  wave *= .55 + .45 * cos(signedDistance * frequency * 6.28318);
+  wave *= smoothstep(0., .08, phase) * (1. - smoothstep(.82, 1., phase));
 
-  vec2 p = uv - center;
-  float aspect = size.x / size.y;
-  p.x *= aspect;
+  vec2 direction = distanceFromOrigin > .0001 ? radial / distanceFromOrigin : vec2(0.);
+  direction.x /= aspect;
+  float centerPull = exp(-distanceFromOrigin * distanceFromOrigin * 45.) * pinchAmount;
+  vec2 offset = direction * (wave * displacement - centerPull * .018);
+  vec2 split = direction * wave * chroma;
+  float reveal = 1. - smoothstep(-.045, .045, signedDistance);
 
-  float dist = length(p);
-  float maxDist = length(vec2(0.5 * aspect, 0.5));
-  float normDist = clamp(dist / maxDist, 0.0, 1.0);
+  vec3 before = splitSample(fromImage, fromSize, uv - offset, split);
+  vec3 after = splitSample(toImage, toSize, uv - offset, split);
+  vec3 color = mix(before, after, reveal);
+  color += wave * highlight * .38;
+  color *= 1. - centerPull * .12;
+  gl_FragColor = vec4(clamp(color, 0., 1.), 1.);
+}`;
 
-  float noiseLarge = fbm(p * 4.0 + vec2(u_progress * 1.0, u_progress * 0.5), 4);
-  float noiseSmall = fbm(p * 12.0 + vec2(u_progress * 2.0, -u_progress * 1.5), 3);
-
-  float waveFront = u_progress * u_waveSpeed;
-  float warpScale = smoothstep(0.0, 0.05, u_progress);
-  float warpedDist = normDist
-    + (noiseLarge - 0.5) * u_noiseWarp * warpScale
-    + (noiseSmall - 0.5) * (u_noiseWarp * 0.9) * warpScale;
-
-  float delta = warpedDist - waveFront;
-  float baseEnvelope = exp(-delta * delta / (2.0 * u_sigma * u_sigma));
-  float ripples = max(0.0, cos(delta * u_waveFreq));
-  float envelope = baseEnvelope * ripples;
-  float gate = smoothstep(0.0, 0.05, u_progress) * (1.0 - smoothstep(0.85, 1.0, u_progress));
-  envelope *= gate;
-
-  vec2 dir = (dist > 0.001) ? normalize(p) : vec2(0.0);
-  float pushAmt = envelope * u_pushAmt;
-  float pinchSigma = 0.10;
-  float pinchG = exp(-dist * dist / (2.0 * pinchSigma * pinchSigma));
-  float pinchDisp = (dist / (pinchSigma * pinchSigma)) * pinchG * 0.01 * u_pinch;
-  vec2 toEdge = min(uv, 1.0 - uv);
-  float edgeFade = smoothstep(0.0, 0.14, min(toEdge.x, toEdge.y));
-  pinchDisp *= edgeFade;
-
-  vec2 uvOffset = dir * (pushAmt - pinchDisp);
-  uvOffset.x /= aspect;
-
-  float caStrength = envelope * u_caStrength;
-  vec2 caOffset = dir * caStrength;
-  caOffset.x /= aspect;
-
-  vec2 uvR = uv - uvOffset - caOffset;
-  vec2 uvG = uv - uvOffset;
-  vec2 uvB = uv - uvOffset + caOffset;
-
-  vec4 colorA = vec4(
-    texture2D(u_texA, coverUv(uvR, u_texASize, size)).r,
-    texture2D(u_texA, coverUv(uvG, u_texASize, size)).g,
-    texture2D(u_texA, coverUv(uvB, u_texASize, size)).b,
-    1.0
+function fetchPictures(sources: readonly string[], signal: AbortSignal) {
+  return Promise.all(
+    sources.map(
+      (source) =>
+        new Promise<Picture | null>((resolve) => {
+          const image = new Image();
+          const finish = (picture: Picture | null) => {
+            image.onload = null;
+            image.onerror = null;
+            resolve(picture);
+          };
+          image.crossOrigin = "anonymous";
+          image.onload = () =>
+            finish({
+              element: image,
+              width: image.naturalWidth || 1,
+              height: image.naturalHeight || 1,
+            });
+          image.onerror = () => finish(null);
+          signal.addEventListener("abort", () => finish(null), { once: true });
+          image.src = source;
+        }),
+    ),
+  ).then((pictures) =>
+    pictures.filter((picture): picture is Picture => picture !== null),
   );
-  vec4 colorB = vec4(
-    texture2D(u_texB, coverUv(uvR, u_texBSize, size)).r,
-    texture2D(u_texB, coverUv(uvG, u_texBSize, size)).g,
-    texture2D(u_texB, coverUv(uvB, u_texBSize, size)).b,
-    1.0
-  );
-
-  float feather = 0.04 + 0.05 * noiseLarge;
-  float reveal = smoothstep(waveFront + feather, waveFront - feather, warpedDist);
-  reveal *= smoothstep(0.0, 0.05, u_progress);
-
-  vec4 base = mix(colorA, colorB, u_swap);
-  vec4 target = mix(colorB, colorA, u_swap);
-  vec4 color = mix(base, target, reveal);
-
-  float glow = envelope * u_glow;
-  color.rgb = clamp(color.rgb / max(1.0 - glow, 0.01), 0.0, 1.0);
-  color.rgb *= 1.0 - 0.16 * pinchG * edgeFade * u_pinch;
-
-  gl_FragColor = vec4(clamp(color.rgb, 0.0, 1.0), 1.0);
 }
-`;
 
-type LoadedImage = {
-  image: HTMLImageElement;
-  width: number;
-  height: number;
-};
+function shader(gl: WebGLRenderingContext, type: number, source: string) {
+  const result = gl.createShader(type);
+  if (!result) throw new Error("Unable to allocate a WebGL shader.");
+  gl.shaderSource(result, source);
+  gl.compileShader(result);
+  if (!gl.getShaderParameter(result, gl.COMPILE_STATUS)) {
+    const message = gl.getShaderInfoLog(result) ?? "Shader compilation failed.";
+    gl.deleteShader(result);
+    throw new Error(message);
+  }
+  return result;
+}
 
-function compileShader(gl: WebGLRenderingContext, src: string, type: number) {
-  const shader = gl.createShader(type);
+class RippleRenderer {
+  private gl: WebGLRenderingContext;
+  private program: WebGLProgram;
+  private vertexShader: WebGLShader;
+  private fragmentShader: WebGLShader;
+  private geometry: WebGLBuffer;
+  private textures: [WebGLTexture, WebGLTexture];
+  private textureSlots: [number, number] = [0, 1];
+  private phase = 0;
+  private origin: [number, number] = [0.5, 0.5];
+  private settings: RippleSettings;
+  private sizes: [Picture, Picture];
 
-  if (!shader) {
-    throw new Error("Unable to create WebGL shader.");
+  constructor(
+    private canvas: HTMLCanvasElement,
+    pictures: Picture[],
+    settings: RippleSettings,
+  ) {
+    const gl = canvas.getContext("webgl", {
+      antialias: true,
+      premultipliedAlpha: false,
+    });
+    if (!gl) throw new Error("WebGL is not supported.");
+    this.gl = gl;
+    this.settings = settings;
+    this.sizes = [pictures[0]!, pictures[1] ?? pictures[0]!];
+    this.vertexShader = shader(gl, gl.VERTEX_SHADER, vertexSource);
+    this.fragmentShader = shader(gl, gl.FRAGMENT_SHADER, fragmentSource);
+    const program = gl.createProgram();
+    if (!program) throw new Error("Unable to allocate a WebGL program.");
+    this.program = program;
+    gl.attachShader(program, this.vertexShader);
+    gl.attachShader(program, this.fragmentShader);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      throw new Error(
+        gl.getProgramInfoLog(program) ?? "WebGL program link failed.",
+      );
+    }
+    gl.useProgram(program);
+
+    const geometry = gl.createBuffer();
+    if (!geometry) throw new Error("Unable to allocate WebGL geometry.");
+    this.geometry = geometry;
+    gl.bindBuffer(gl.ARRAY_BUFFER, geometry);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
+      gl.STATIC_DRAW,
+    );
+    const position = gl.getAttribLocation(program, "position");
+    gl.enableVertexAttribArray(position);
+    gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+    this.textures = [
+      this.makeTexture(0, this.sizes[0].element),
+      this.makeTexture(1, this.sizes[1].element),
+    ];
+    gl.uniform1i(this.location("fromImage"), 0);
+    gl.uniform1i(this.location("toImage"), 1);
   }
 
-  gl.shaderSource(shader, src);
-  gl.compileShader(shader);
-
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    const info = gl.getShaderInfoLog(shader) || "Shader compile error.";
-    gl.deleteShader(shader);
-    throw new Error(info);
+  private location(name: string) {
+    return this.gl.getUniformLocation(this.program, name);
   }
 
-  return shader;
+  private makeTexture(unit: number, image: HTMLImageElement) {
+    const gl = this.gl;
+    const texture = gl.createTexture();
+    if (!texture) throw new Error("Unable to allocate a WebGL texture.");
+    gl.activeTexture(gl.TEXTURE0 + unit);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return texture;
+  }
+
+  resize(width: number, height: number) {
+    const density = Math.min(2, window.devicePixelRatio || 1);
+    const pixelWidth = Math.max(1, Math.round(width * density));
+    const pixelHeight = Math.max(1, Math.round(height * density));
+    if (
+      this.canvas.width !== pixelWidth ||
+      this.canvas.height !== pixelHeight
+    ) {
+      this.canvas.width = pixelWidth;
+      this.canvas.height = pixelHeight;
+      this.gl.viewport(0, 0, pixelWidth, pixelHeight);
+    }
+    this.draw();
+  }
+
+  configure(settings: RippleSettings) {
+    this.settings = settings;
+    this.draw();
+  }
+
+  begin(x: number, y: number) {
+    this.origin = [x, y];
+    this.phase = 0;
+    this.draw();
+  }
+
+  setPhase(value: number) {
+    this.phase = value;
+    this.draw();
+  }
+
+  advance(picture: Picture, nextIndex: number) {
+    const gl = this.gl;
+    const previousToSlot = this.textureSlots[1];
+    this.textureSlots = [previousToSlot, nextIndex];
+    this.sizes = [this.sizes[1], picture];
+    gl.activeTexture(gl.TEXTURE0 + nextIndex);
+    gl.bindTexture(gl.TEXTURE_2D, this.textures[nextIndex]!);
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      picture.element,
+    );
+    gl.uniform1i(this.location("fromImage"), previousToSlot);
+    gl.uniform1i(this.location("toImage"), nextIndex);
+    this.phase = 0;
+    this.draw();
+  }
+
+  draw() {
+    const gl = this.gl;
+    const s = this.settings;
+    gl.useProgram(this.program);
+    gl.uniform2f(
+      this.location("viewport"),
+      this.canvas.width,
+      this.canvas.height,
+    );
+    gl.uniform2f(
+      this.location("fromSize"),
+      this.sizes[0].width,
+      this.sizes[0].height,
+    );
+    gl.uniform2f(
+      this.location("toSize"),
+      this.sizes[1].width,
+      this.sizes[1].height,
+    );
+    gl.uniform2f(this.location("origin"), this.origin[0], this.origin[1]);
+    gl.uniform1f(this.location("phase"), this.phase);
+    gl.uniform1f(this.location("speed"), s.waveSpeed);
+    gl.uniform1f(this.location("thickness"), s.sigma);
+    gl.uniform1f(this.location("frequency"), s.waveFreq);
+    gl.uniform1f(this.location("displacement"), s.pushAmt);
+    gl.uniform1f(this.location("chroma"), s.caStrength);
+    gl.uniform1f(this.location("highlight"), s.glow);
+    gl.uniform1f(this.location("roughness"), s.noiseWarp * 0.09);
+    gl.uniform1f(this.location("pinchAmount"), s.pinch ? 1 : 0);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+
+  destroy() {
+    const gl = this.gl;
+    this.textures.forEach((texture) => gl.deleteTexture(texture));
+    gl.deleteBuffer(this.geometry);
+    gl.deleteProgram(this.program);
+    gl.deleteShader(this.vertexShader);
+    gl.deleteShader(this.fragmentShader);
+  }
 }
 
-function loadImage(src: string): Promise<LoadedImage | null> {
-  return new Promise((resolve) => {
-    const image = new Image();
-    image.crossOrigin = "anonymous";
-    image.onload = () =>
-      resolve({
-        image,
-        width: image.naturalWidth || image.width || 1,
-        height: image.naturalHeight || image.height || 1,
-      });
-    image.onerror = () => resolve(null);
-    image.src = src;
-  });
-}
-
-function uploadTexture(
-  gl: WebGLRenderingContext,
-  unit: number,
-  image: HTMLImageElement,
-) {
-  const texture = gl.createTexture();
-
-  gl.activeTexture(gl.TEXTURE0 + unit);
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-  return texture;
-}
-
-function RippleTransitionInner({
-  images = DEFAULT_IMAGES,
-  duration = DEFAULTS.duration,
-  ease = DEFAULTS.ease,
-  autoPlay = DEFAULTS.autoPlay,
-  autoPlayInterval = DEFAULTS.autoPlayInterval,
-  autoPlayOrigin = DEFAULTS.autoPlayOrigin,
-  waveSpeed = DEFAULTS.waveSpeed,
-  sigma = DEFAULTS.sigma,
-  waveFreq = DEFAULTS.waveFreq,
-  pushAmt = DEFAULTS.pushAmt,
-  caStrength = DEFAULTS.caStrength,
-  glow = DEFAULTS.glow,
-  noiseWarp = DEFAULTS.noiseWarp,
-  pinch = DEFAULTS.pinch,
-  borderRadius = DEFAULTS.borderRadius,
-  background = DEFAULTS.background,
+function RippleTransitionCanvas({
+  images = sampleImages,
+  duration = 1.4,
+  ease = "easeInOut",
+  autoPlay = false,
+  autoPlayInterval = 3200,
+  autoPlayOrigin = "center",
+  waveSpeed = 1.6,
+  sigma = 0.15,
+  waveFreq = 5,
+  pushAmt = 0.145,
+  caStrength = 0.02,
+  glow = 0.73,
+  noiseWarp = 1,
+  pinch = false,
+  borderRadius = 24,
+  background = "#111416",
   label = "Ripple image transition",
   className,
   style,
   ...props
 }: RippleTransitionProps) {
-  const wrapperRef = React.useRef<HTMLDivElement>(null);
+  const rootRef = React.useRef<HTMLDivElement>(null);
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
-  const renderRef = React.useRef<(() => void) | null>(null);
-  const triggerRef = React.useRef<((x?: number, y?: number) => void) | null>(null);
-
-  const paramsRef = React.useRef({
-    waveSpeed,
-    sigma,
-    waveFreq,
-    pushAmt,
-    caStrength,
-    glow,
-    noiseWarp,
-    duration,
-    ease,
-    pinch,
-  });
-
-  paramsRef.current = {
-    waveSpeed,
-    sigma,
-    waveFreq,
-    pushAmt,
-    caStrength,
-    glow,
-    noiseWarp,
-    duration,
-    ease,
-    pinch,
-  };
+  const engineRef = React.useRef<RippleRenderer | null>(null);
+  const playRef = React.useRef<(x?: number, y?: number) => void>(
+    () => undefined,
+  );
+  const settings = React.useMemo<RippleSettings>(
+    () => ({
+      waveSpeed,
+      sigma,
+      waveFreq,
+      pushAmt,
+      caStrength,
+      glow,
+      noiseWarp,
+      pinch,
+    }),
+    [caStrength, glow, noiseWarp, pinch, pushAmt, sigma, waveFreq, waveSpeed],
+  );
+  const settingsRef = React.useRef(settings);
+  settingsRef.current = settings;
 
   React.useEffect(() => {
+    engineRef.current?.configure(settings);
+  }, [settings]);
+
+  React.useEffect(() => {
+    const root = rootRef.current;
     const canvas = canvasRef.current;
-    const wrapper = wrapperRef.current;
+    if (!root || !canvas) return;
+    const abortController = new AbortController();
+    let animation: AnimationPlaybackControls | null = null;
+    let engine: RippleRenderer | null = null;
+    let busy = false;
+    let current = 0;
 
-    if (!canvas || !wrapper) {
-      return;
-    }
-
-    const canvasElement = canvas;
-    const wrapperElement = wrapper;
-    let cancelled = false;
-    let cleanup: (() => void) | null = null;
-
-    async function setup() {
-      const loaded = (await Promise.all(images.map(loadImage))).filter(
-        (item): item is LoadedImage => item !== null,
-      );
-
-      if (cancelled || loaded.length === 0) {
-        return;
-      }
-
-      const firstImage = loaded[0]!;
-      const secondImage = loaded[1] ?? firstImage;
-      const gl = canvasElement.getContext("webgl", {
-        premultipliedAlpha: false,
-        antialias: true,
+    fetchPictures(images, abortController.signal).then((pictures) => {
+      if (abortController.signal.aborted || pictures.length === 0) return;
+      engine = new RippleRenderer(canvas, pictures, settingsRef.current);
+      engineRef.current = engine;
+      const observer = new ResizeObserver(([entry]) => {
+        const box = entry?.contentRect;
+        if (box) engine?.resize(box.width, box.height);
       });
+      observer.observe(root);
+      engine.resize(root.clientWidth, root.clientHeight);
 
-      if (!gl) {
-        return;
-      }
-
-      const vertexShader = compileShader(gl, VERT, gl.VERTEX_SHADER);
-      const fragmentShader = compileShader(gl, FRAG, gl.FRAGMENT_SHADER);
-      const program = gl.createProgram();
-
-      if (!program) {
-        throw new Error("Unable to create WebGL program.");
-      }
-
-      gl.attachShader(program, vertexShader);
-      gl.attachShader(program, fragmentShader);
-      gl.linkProgram(program);
-
-      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-        throw new Error(gl.getProgramInfoLog(program) || "WebGL program link error.");
-      }
-
-      gl.useProgram(program);
-
-      const buffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-      gl.bufferData(
-        gl.ARRAY_BUFFER,
-        new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
-        gl.STATIC_DRAW,
-      );
-
-      const aPos = gl.getAttribLocation(program, "a_pos");
-      gl.enableVertexAttribArray(aPos);
-      gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-
-      const texA = uploadTexture(gl, 0, firstImage.image);
-      const texB = uploadTexture(gl, 1, secondImage.image);
-
-      gl.uniform1i(gl.getUniformLocation(program, "u_texA"), 0);
-      gl.uniform1i(gl.getUniformLocation(program, "u_texB"), 1);
-
-      const uniforms = {
-        res: gl.getUniformLocation(program, "u_resolution"),
-        texASize: gl.getUniformLocation(program, "u_texASize"),
-        texBSize: gl.getUniformLocation(program, "u_texBSize"),
-        center: gl.getUniformLocation(program, "u_center"),
-        progress: gl.getUniformLocation(program, "u_progress"),
-        waveSpeed: gl.getUniformLocation(program, "u_waveSpeed"),
-        sigma: gl.getUniformLocation(program, "u_sigma"),
-        waveFreq: gl.getUniformLocation(program, "u_waveFreq"),
-        pushAmt: gl.getUniformLocation(program, "u_pushAmt"),
-        caStrength: gl.getUniformLocation(program, "u_caStrength"),
-        glow: gl.getUniformLocation(program, "u_glow"),
-        noiseWarp: gl.getUniformLocation(program, "u_noiseWarp"),
-        swap: gl.getUniformLocation(program, "u_swap"),
-        pinch: gl.getUniformLocation(program, "u_pinch"),
-      };
-
-      const state = {
-        progress: 0,
-        cx: 0.5,
-        cy: 0.5,
-        swap: 0,
-        currentIndex: 0,
-        texASize: { width: firstImage.width, height: firstImage.height },
-        texBSize: { width: secondImage.width, height: secondImage.height },
-        pinch: 0,
-      };
-
-      const resize = () => {
-        const rect = wrapperElement.getBoundingClientRect();
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        const width = Math.max(1, Math.round(rect.width * dpr));
-        const height = Math.max(1, Math.round(rect.height * dpr));
-
-        if (canvasElement.width !== width || canvasElement.height !== height) {
-          canvasElement.width = width;
-          canvasElement.height = height;
-          gl.viewport(0, 0, width, height);
-        }
-
-        renderRef.current?.();
-      };
-
-      const rebindTargetSlot = () => {
-        if (loaded.length <= 2) {
-          return;
-        }
-
-        const nextIndex = (state.currentIndex + 1) % loaded.length;
-        const nextImage = loaded[nextIndex]!;
-        const targetUnit = state.swap > 0.5 ? 0 : 1;
-        const targetTexture = state.swap > 0.5 ? texA : texB;
-
-        gl.activeTexture(gl.TEXTURE0 + targetUnit);
-        gl.bindTexture(gl.TEXTURE_2D, targetTexture);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-        gl.texImage2D(
-          gl.TEXTURE_2D,
-          0,
-          gl.RGBA,
-          gl.RGBA,
-          gl.UNSIGNED_BYTE,
-          nextImage.image,
-        );
-
-        if (targetUnit === 0) {
-          state.texASize = { width: nextImage.width, height: nextImage.height };
-        } else {
-          state.texBSize = { width: nextImage.width, height: nextImage.height };
-        }
-      };
-
-      const render = () => {
-        const p = paramsRef.current;
-
-        gl.uniform2f(uniforms.res, canvasElement.width, canvasElement.height);
-        gl.uniform2f(uniforms.texASize, state.texASize.width, state.texASize.height);
-        gl.uniform2f(uniforms.texBSize, state.texBSize.width, state.texBSize.height);
-        gl.uniform2f(uniforms.center, state.cx, state.cy);
-        gl.uniform1f(uniforms.progress, state.progress);
-        gl.uniform1f(uniforms.waveSpeed, p.waveSpeed);
-        gl.uniform1f(uniforms.sigma, p.sigma);
-        gl.uniform1f(uniforms.waveFreq, p.waveFreq);
-        gl.uniform1f(uniforms.pushAmt, p.pushAmt);
-        gl.uniform1f(uniforms.caStrength, p.caStrength);
-        gl.uniform1f(uniforms.glow, p.glow);
-        gl.uniform1f(uniforms.noiseWarp, p.noiseWarp);
-        gl.uniform1f(uniforms.swap, state.swap);
-        gl.uniform1f(uniforms.pinch, state.pinch);
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      };
-
-      renderRef.current = render;
-
-      let animating = false;
-      let progressAnim: AnimationPlaybackControls | null = null;
-      let pinchAnim: AnimationPlaybackControls | null = null;
-
-      const trigger = (cx = 0.5, cy = 0.5) => {
-        if (animating || loaded.length < 2) {
-          return;
-        }
-
-        state.cx = cx;
-        state.cy = cy;
-        state.progress = 0;
-        state.pinch = 0;
-        animating = true;
-        progressAnim?.stop();
-        pinchAnim?.stop();
-
-        if (paramsRef.current.pinch) {
-          pinchAnim = animate(0, [1, 0], {
-            duration: 0.5,
-            times: [0, 0.2, 1],
-            ease: ["easeOut", "easeIn"],
-            onUpdate: (value) => {
-              state.pinch = value;
-              render();
-            },
-          });
-        }
-
-        progressAnim = animate(0, 1, {
-          duration: paramsRef.current.duration,
-          ease: paramsRef.current.ease,
-          onUpdate: (value) => {
-            state.progress = value;
-            render();
-          },
+      playRef.current = (x = 0.5, y = 0.5) => {
+        if (busy || pictures.length < 2 || !engine) return;
+        busy = true;
+        engine.begin(x, y);
+        animation?.stop();
+        animation = animate(0, 1, {
+          duration,
+          ease,
+          onUpdate: (value) => engine?.setPhase(value),
           onComplete: () => {
-            state.currentIndex = (state.currentIndex + 1) % loaded.length;
-            state.swap = state.swap > 0.5 ? 0 : 1;
-            state.progress = 0;
-            rebindTargetSlot();
-            animating = false;
-            render();
+            current = (current + 1) % pictures.length;
+            const following = pictures[(current + 1) % pictures.length]!;
+            engine?.advance(following, (current + 1) % 2);
+            busy = false;
           },
         });
       };
 
-      triggerRef.current = trigger;
-
-      const handlePointerUp = (event: PointerEvent) => {
-        const rect = canvasElement.getBoundingClientRect();
-        trigger((event.clientX - rect.left) / rect.width, (event.clientY - rect.top) / rect.height);
-      };
-
-      const observer = new ResizeObserver(resize);
-      observer.observe(wrapperElement);
-      window.addEventListener("resize", resize);
-      canvasElement.addEventListener("pointerup", handlePointerUp);
-      resize();
-
-      cleanup = () => {
-        observer.disconnect();
-        window.removeEventListener("resize", resize);
-        canvasElement.removeEventListener("pointerup", handlePointerUp);
-        progressAnim?.stop();
-        pinchAnim?.stop();
-        triggerRef.current = null;
-        renderRef.current = null;
-        gl.deleteTexture(texA);
-        gl.deleteTexture(texB);
-        gl.deleteBuffer(buffer);
-        gl.deleteProgram(program);
-        gl.deleteShader(vertexShader);
-        gl.deleteShader(fragmentShader);
-      };
-    }
-
-    setup();
+      abortController.signal.addEventListener(
+        "abort",
+        () => {
+          observer.disconnect();
+          animation?.stop();
+          engine?.destroy();
+        },
+        { once: true },
+      );
+    });
 
     return () => {
-      cancelled = true;
-      cleanup?.();
+      playRef.current = () => undefined;
+      engineRef.current = null;
+      abortController.abort();
     };
-  }, [images]);
+  }, [duration, ease, images]);
 
   React.useEffect(() => {
-    renderRef.current?.();
-  }, [waveSpeed, sigma, waveFreq, pushAmt, caStrength, glow, noiseWarp, pinch]);
-
-  React.useEffect(() => {
-    if (!autoPlay) {
-      return;
-    }
-
-    const interval = window.setInterval(() => {
-      const origin =
-        autoPlayOrigin === "random"
-          ? { x: 0.18 + Math.random() * 0.64, y: 0.18 + Math.random() * 0.64 }
-          : { x: 0.5, y: 0.5 };
-
-      triggerRef.current?.(origin.x, origin.y);
+    if (!autoPlay) return;
+    const timer = window.setInterval(() => {
+      const x = autoPlayOrigin === "random" ? 0.18 + Math.random() * 0.64 : 0.5;
+      const y = autoPlayOrigin === "random" ? 0.18 + Math.random() * 0.64 : 0.5;
+      playRef.current(x, y);
     }, autoPlayInterval);
-
-    return () => window.clearInterval(interval);
+    return () => window.clearInterval(timer);
   }, [autoPlay, autoPlayInterval, autoPlayOrigin]);
 
   return (
     <div
-      ref={wrapperRef}
+      ref={rootRef}
       className={cn(
-        "relative h-full min-h-[320px] w-full cursor-pointer overflow-hidden leading-none",
+        "relative h-full min-h-[320px] w-full cursor-pointer overflow-hidden leading-none outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2",
         className,
       )}
-      style={{ borderRadius, background, touchAction: "manipulation", ...style }}
+      style={{
+        borderRadius,
+        background,
+        touchAction: "manipulation",
+        ...style,
+      }}
       role="button"
       tabIndex={0}
       aria-label={label}
+      onPointerUp={(event) => {
+        const bounds = event.currentTarget.getBoundingClientRect();
+        playRef.current(
+          (event.clientX - bounds.left) / bounds.width,
+          (event.clientY - bounds.top) / bounds.height,
+        );
+      }}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          triggerRef.current?.(0.5, 0.5);
+          playRef.current();
         }
       }}
       {...props}
@@ -642,7 +524,7 @@ export function RippleTransition(props: RippleTransitionProps) {
         />
       }
     >
-      <RippleTransitionInner {...props} />
+      <RippleTransitionCanvas {...props} />
     </WebGLErrorBoundary>
   );
 }

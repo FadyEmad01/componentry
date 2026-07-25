@@ -1,13 +1,27 @@
 "use client";
 
 import { cn } from "@workspace/ui/lib/utils";
-import { motion, useScroll, useTransform } from "framer-motion";
+import {
+  useReducedMotion,
+  useScroll,
+  useTransform,
+  motion,
+} from "framer-motion";
 import ReactLenis from "lenis/react";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 
 export interface StickyScrollCardItem {
   title: string;
   src: string;
+}
+
+interface StickyScrollCardsProps {
+  /** Array of card items, each with a title and image src URL */
+  cards?: StickyScrollCardItem[];
+  /** Hint label shown above the stack */
+  hint?: string;
+  /** Additional CSS classes for the outer container */
+  className?: string;
 }
 
 const DEFAULT_CARDS: StickyScrollCardItem[] = [
@@ -33,72 +47,60 @@ const DEFAULT_CARDS: StickyScrollCardItem[] = [
   },
 ];
 
-// Very subtle tilts — natural scatter without looking messy
-const CARD_ROTATIONS = [-1.4, 1.0, -0.8, 1.6, -1.1];
+const TILT_PATTERN = [-1.25, 0.85, -0.65, 1.35, -0.9];
 
-interface StickyScrollCardProps {
-  i: number;
-  title: string;
-  src: string;
-  progress: ReturnType<typeof useScroll>["scrollYProgress"];
-  range: [number, number];
-  targetScale: number;
-}
-
-function StickyScrollCard({
-  i,
-  title,
-  src,
-  progress,
-  range,
-  targetScale,
-}: StickyScrollCardProps) {
-  const scale = useTransform(progress, range, [1, targetScale]);
-  const rotation = CARD_ROTATIONS[i % CARD_ROTATIONS.length];
+function StackCard({
+  card,
+  index,
+  total,
+  container,
+  reduceMotion,
+}: {
+  card: StickyScrollCardItem;
+  index: number;
+  total: number;
+  container: React.RefObject<HTMLDivElement | null>;
+  reduceMotion: boolean;
+}) {
+  const { scrollYProgress } = useScroll({
+    target: container,
+    offset: ["start start", "end end"],
+  });
+  const start = total > 1 ? index / (total + 1) : 0;
+  const restingScale = Math.max(0.56, 1 - (total - index - 1) * 0.095);
+  const scale = useTransform(
+    scrollYProgress,
+    [start, 1],
+    reduceMotion ? [1, 1] : [1, restingScale],
+  );
 
   return (
-    <div className="sticky top-0 flex h-screen items-center justify-center">
-      <motion.div
+    <section className="sticky top-0 grid h-screen place-items-center">
+      <motion.figure
+        className="relative m-0 origin-top overflow-hidden rounded bg-white text-neutral-950"
         style={{
           scale,
-          rotate: rotation,
-          top: `calc(-5vh + ${i * 22 + 160}px)`,
-          borderRadius: 4,
+          rotate: reduceMotion ? 0 : TILT_PATTERN[index % TILT_PATTERN.length],
+          top: `calc(-5vh + ${160 + index * 22}px)`,
           boxShadow:
-            "0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.07), 0 12px 32px rgba(0,0,0,0.10), 0 24px 56px rgba(0,0,0,0.08)",
+            "0 2px 5px rgb(0 0 0 / 0.06), 0 18px 48px rgb(0 0 0 / 0.13)",
         }}
-        className="relative -top-1/4 origin-top overflow-hidden bg-white"
       >
-        {/* 10px border on three sides */}
-        <div className="p-[10px] pb-0">
-          <div className="w-[460px] overflow-hidden">
-            <img
-              src={src}
-              alt={title}
-              className="block h-[290px] w-full object-cover"
-              draggable={false}
-            />
-          </div>
+        <div className="p-2.5 pb-0">
+          <img
+            src={card.src}
+            alt={card.title}
+            className="block h-[clamp(210px,32vw,290px)] w-[min(78vw,460px)] object-cover"
+            loading={index < 2 ? "eager" : "lazy"}
+            draggable={false}
+          />
         </div>
-
-        {/* Caption strip — trimmed height */}
-        <div className="flex h-[44px] items-center justify-center px-4">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400">
-            {title}
-          </p>
-        </div>
-      </motion.div>
-    </div>
+        <figcaption className="grid h-11 place-items-center px-4 text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-400">
+          {card.title}
+        </figcaption>
+      </motion.figure>
+    </section>
   );
-}
-
-interface StickyScrollCardsProps {
-  /** Array of card items, each with a title and image src URL */
-  cards?: StickyScrollCardItem[];
-  /** Hint label shown above the stack */
-  hint?: string;
-  /** Additional CSS classes for the outer container */
-  className?: string;
 }
 
 export function StickyScrollCards({
@@ -107,54 +109,35 @@ export function StickyScrollCards({
   className,
 }: StickyScrollCardsProps) {
   const container = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: container,
-    offset: ["start start", "end end"],
-  });
+  const reduceMotion = useReducedMotion() ?? false;
 
-  // Hide the native scrollbar while this component is mounted
-  useEffect(() => {
-    const style = document.createElement("style");
-    style.id = "__sticky-scroll-cards-no-bar";
-    style.textContent =
-      "html { scrollbar-width: none; -ms-overflow-style: none; } html::-webkit-scrollbar { display: none; }";
-    document.head.appendChild(style);
-    return () => {
-      document.getElementById("__sticky-scroll-cards-no-bar")?.remove();
-    };
-  }, []);
+  const content = (
+    <main
+      ref={container}
+      className={cn(
+        "relative flex w-full flex-col items-center pb-[100vh] pt-[50vh]",
+        className,
+      )}
+    >
+      <div className="absolute left-1/2 top-[8%] flex -translate-x-1/2 flex-col items-center gap-3">
+        <p className="text-[10px] font-medium uppercase tracking-[0.2em] opacity-30">
+          {hint}
+        </p>
+        <span className="h-12 w-px bg-gradient-to-b from-foreground/30 to-transparent" />
+      </div>
 
-  return (
-    <ReactLenis root>
-      <main
-        ref={container}
-        className={cn(
-          "relative flex w-full flex-col items-center justify-center pb-[100vh] pt-[50vh]",
-          className
-        )}
-      >
-        {/* Hint label */}
-        <div className="absolute left-1/2 top-[8%] flex -translate-x-1/2 flex-col items-center gap-3">
-          <p className="text-[10px] font-medium uppercase tracking-[0.2em] opacity-30">
-            {hint}
-          </p>
-          <span className="h-12 w-px bg-gradient-to-b from-foreground/30 to-transparent" />
-        </div>
-
-        {cards.map((card, i) => {
-          const targetScale = Math.max(0.5, 1 - (cards.length - i - 1) * 0.1);
-          return (
-            <StickyScrollCard
-              key={`card_${i}`}
-              i={i}
-              {...card}
-              progress={scrollYProgress}
-              range={[i * 0.25, 1]}
-              targetScale={targetScale}
-            />
-          );
-        })}
-      </main>
-    </ReactLenis>
+      {cards.map((card, index) => (
+        <StackCard
+          key={`${card.src}-${index}`}
+          card={card}
+          index={index}
+          total={cards.length}
+          container={container}
+          reduceMotion={reduceMotion}
+        />
+      ))}
+    </main>
   );
+
+  return reduceMotion ? content : <ReactLenis root>{content}</ReactLenis>;
 }
