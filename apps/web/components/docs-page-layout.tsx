@@ -7,6 +7,7 @@ import { ImportCodeBlock } from "@/components/import-code-block"
 import { DynamicCodeBlock } from "@/components/dynamic-code-block"
 import { DocsPropsTable } from "@/components/docs-props-table"
 import { DocsFooterSection } from "@/components/docs-footer-section"
+import { ComponentPagination } from "@/components/component-pagination"
 import { Section } from "@/components/component-layout"
 import { DocsPreviewWrapper, type VariantItem } from "@/components/docs-preview-wrapper"
 import { highlightCode } from "@/lib/shiki"
@@ -167,9 +168,14 @@ export async function DocsPageLayout({
             {/* Header Section */}
             <header>
               <div className="space-y-4">
-                <h1 className="mb-1 max-w-2xl pb-1 text-[34px] font-medium leading-[1.08] tracking-[-0.025em] text-[#333333] sm:text-[40px] lg:text-[46px] dark:text-zinc-100">
-                  {title}
-                </h1>
+                <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between xl:gap-5">
+                  <h1 className="mb-1 min-w-0 max-w-2xl pb-1 text-[34px] font-medium leading-[1.08] tracking-[-0.025em] text-[#333333] sm:text-[40px] lg:text-[46px] dark:text-zinc-100">
+                    {title}
+                  </h1>
+                  <div className="self-end xl:self-auto">
+                    <ComponentPagination currentSlug={installPackageName} />
+                  </div>
+                </div>
 
                 <p className="max-w-xl text-[15px] font-normal leading-7 tracking-normal text-muted-foreground/85">
                   {description}
