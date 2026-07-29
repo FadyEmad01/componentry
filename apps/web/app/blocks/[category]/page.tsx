@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-import { Fragment } from "react";
 import { notFound } from "next/navigation";
 
 import { BlockDisplay } from "@/components/blocks/block-display";
 import { BlocksHeading } from "@/components/blocks/blocks-heading";
-import { BlocksStripeDivider } from "@/components/blocks/blocks-list-decor";
 import { getAllBlocks } from "@/lib/blocks/registry";
 import categories from "@/registry/generated/block-categories.json";
 
@@ -52,12 +50,11 @@ export default async function BlocksCategoryPage({
         />
       </div>
 
-      {blocks.map((block) => (
-        <Fragment key={block.name}>
-          <BlockDisplay name={block.name} />
-          <BlocksStripeDivider />
-        </Fragment>
-      ))}
+      <div className="space-y-12">
+        {blocks.map((block) => (
+          <BlockDisplay key={block.name} name={block.name} />
+        ))}
+      </div>
     </>
   );
 }

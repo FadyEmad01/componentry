@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { BlockDisplay } from "@/components/blocks/block-display";
-import { BlocksStripeDivider } from "@/components/blocks/blocks-list-decor";
 import {
   getAllBlockStaticParams,
   getAllBlocks,
@@ -68,7 +67,6 @@ export default async function BlockDetailPage({
         </div>
       </section>
       <BlockDisplay name={block.name} />
-      <BlocksStripeDivider />
     </>
   );
 }

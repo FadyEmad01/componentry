@@ -84,4 +84,46 @@ export const blocks = [
       previewClassName: "min-h-screen",
     },
   },
+  {
+    name: "pricing-01",
+    title: "Pricing 01",
+    description:
+      "Three tactile pricing cards with revealed hover notes, clear feature lists, and a highlighted popular plan.",
+    type: "registry:block",
+    categories: ["pricing"],
+    files: [
+      {
+        path: "blocks/pricing-01/pricing-01.tsx",
+        target: "@components/pricing-01.tsx",
+        type: "registry:component",
+      },
+    ],
+    dependencies: ["lucide-react"],
+    meta: {
+      createdAt: "2026-07-29",
+      iframeHeight: 850,
+      previewClassName: "min-h-[850px]",
+    },
+  },
+  {
+    name: "pricing-02",
+    title: "Pricing 02",
+    description:
+      "A compact pricing table with separated plan summaries, detailed feature lists, and an animated billing-cycle switch.",
+    type: "registry:block",
+    categories: ["pricing"],
+    files: [
+      {
+        path: "blocks/pricing-02/pricing-02.tsx",
+        target: "@components/pricing-02.tsx",
+        type: "registry:component",
+      },
+    ],
+    dependencies: ["lucide-react"],
+    meta: {
+      createdAt: "2026-07-29",
+      iframeHeight: 1100,
+      previewClassName: "min-h-[1100px]",
+    },
+  },
 ] satisfies BlockRegistryItem[];

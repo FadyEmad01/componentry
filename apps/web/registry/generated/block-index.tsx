@@ -6,11 +6,21 @@ import type * as React from "react"
 import blocks from "./blocks.json"
 
 import Block0 from "@/registry/blocks/gradient-hero-01/gradient-hero-01"
+import Block1 from "@/registry/blocks/pricing-01/pricing-01"
+import Block2 from "@/registry/blocks/pricing-02/pricing-02"
 
 export const blockIndex = {
   "gradient-hero-01": {
     ...blocks[0]!,
     component: Block0,
+  },
+  "pricing-01": {
+    ...blocks[1]!,
+    component: Block1,
+  },
+  "pricing-02": {
+    ...blocks[2]!,
+    component: Block2,
   },
 } as const satisfies Record<
   string,

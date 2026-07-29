@@ -38,8 +38,8 @@ const sizeIcons = {
   desktop: Monitor,
 };
 
-const viewerToolbarRail = "relative mx-auto w-full max-w-[1360px] px-4 md:px-3";
-const viewerBodyRail = "relative mx-auto w-full max-w-[1360px] px-4 md:px-3";
+const viewerToolbarRail = "relative mx-auto w-full max-w-[1360px]";
+const viewerBodyRail = "relative mx-auto w-full max-w-[1360px]";
 
 function copyText(text: string) {
   return navigator.clipboard.writeText(text);
