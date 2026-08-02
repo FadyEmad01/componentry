@@ -268,6 +268,14 @@ export const components: Record<string, ComponentMetadata> = {
     previewVideo:
       "https://pub-a50e7f4ea75a4970a1738e50d53b6eb1.r2.dev/preview-videos/hero-backgrounds/silkaurora.webm",
   },
+  "aurora-flow": {
+    title: "Aurora Flow",
+    description:
+      "Procedural atmospheric hero background with layered flowing color, diffused aurora light, and subtle interaction.",
+    category: "Hero Backgrounds",
+    slug: "aurora-flow",
+    addedAt: "2026-08-02",
+  },
   "closing-plasma": {
     title: "Closing Plasma",
     description:
