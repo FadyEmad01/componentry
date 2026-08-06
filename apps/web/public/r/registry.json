@@ -162,6 +162,10 @@
       "type": "registry:ui"
     },
     {
+      "name": "pixel-image-trail",
+      "type": "registry:ui"
+    },
+    {
       "name": "prism-gradient",
       "type": "registry:ui"
     },

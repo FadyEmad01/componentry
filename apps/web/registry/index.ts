@@ -405,6 +405,14 @@ export const components: Record<string, ComponentMetadata> = {
     previewVideo:
       "https://pub-a50e7f4ea75a4970a1738e50d53b6eb1.r2.dev/preview-videos/visual-effects/pixelcanvas.mov",
   },
+  "pixel-image-trail": {
+    title: "Pixel Image Trail",
+    description:
+      "An image reveal made from cursor-painted squares that expire into a bounded pixel trail.",
+    category: "Visual Effects",
+    slug: "pixel-image-trail",
+    addedAt: "2026-08-06",
+  },
   signature: {
     title: "Signature",
     description:
