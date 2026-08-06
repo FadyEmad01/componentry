@@ -218,6 +218,16 @@ export const components: Record<string, ComponentMetadata> = {
     previewVideo:
       "https://pub-a50e7f4ea75a4970a1738e50d53b6eb1.r2.dev/preview-videos/component-animations/orbitcardstack.webm",
   },
+  "newsletter-bookshelf": {
+    title: "Newsletter Bookshelf",
+    description:
+      "A tactile 3D newsletter archive with hover lift, camera browsing, centered covers, and automatic drag-adjustable orbiting.",
+    category: "Components",
+    slug: "newsletter-bookshelf",
+    addedAt: "2026-08-06",
+    previewVideo:
+      "https://pub-a50e7f4ea75a4970a1738e50d53b6eb1.r2.dev/preview-videos/component-animations/newsletterbookshelf.webm",
+  },
 
   "split-flap-display": {
     title: "Split Flap Display",

@@ -166,6 +166,10 @@ const docsImportMap: Record<
     import("@/components/docs/orbit-card-stack").then((m) => ({
       default: m.OrbitCardStackDocs,
     })),
+  "newsletter-bookshelf": () =>
+    import("@/components/docs/newsletter-bookshelf").then((m) => ({
+      default: m.NewsletterBookshelfDocs,
+    })),
   signature: () =>
     import("@/components/docs/signature").then((m) => ({
       default: m.SignatureDocs,

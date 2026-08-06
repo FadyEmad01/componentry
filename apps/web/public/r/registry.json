@@ -142,6 +142,10 @@
       "type": "registry:ui"
     },
     {
+      "name": "newsletter-bookshelf",
+      "type": "registry:ui"
+    },
+    {
       "name": "noise-texture",
       "type": "registry:ui"
     },
