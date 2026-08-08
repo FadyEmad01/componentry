@@ -66,6 +66,10 @@
       "type": "registry:ui"
     },
     {
+      "name": "fisheye-infinite-grid",
+      "type": "registry:ui"
+    },
+    {
       "name": "flight-status-card",
       "type": "registry:ui"
     },

@@ -171,6 +171,14 @@ export const components: Record<string, ComponentMetadata> = {
     previewVideo:
       "https://pub-a50e7f4ea75a4970a1738e50d53b6eb1.r2.dev/preview-videos/component-animations/collectionsurfer.mov",
   },
+  "fisheye-infinite-grid": {
+    title: "Fisheye Infinite Grid",
+    description:
+      "A dense draggable image wall warped as one continuous fisheye surface with weighted momentum.",
+    category: "Components",
+    slug: "fisheye-infinite-grid",
+    addedAt: "2026-08-08",
+  },
   "github-calendar": {
     title: "Github Calendar",
     description: "GitHub-style contribution calendar heatmap.",

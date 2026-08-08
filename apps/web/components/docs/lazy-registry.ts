@@ -162,6 +162,10 @@ const docsImportMap: Record<
     import("@/components/docs/infinite-image-field").then((m) => ({
       default: m.InfiniteImageFieldDocs,
     })),
+  "fisheye-infinite-grid": () =>
+    import("@/components/docs/fisheye-infinite-grid").then((m) => ({
+      default: m.FisheyeInfiniteGridDocs,
+    })),
   "layered-stack": () =>
     import("@/components/docs/layered-stack").then((m) => ({
       default: m.LayeredStackDocs,
