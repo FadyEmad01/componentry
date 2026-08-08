@@ -110,6 +110,10 @@ const docsImportMap: Record<
     import("@/components/docs/pixel-canvas").then((m) => ({
       default: m.PixelCanvasDocs,
     })),
+  "pixel-image-trail": () =>
+    import("@/components/docs/pixel-image-trail").then((m) => ({
+      default: m.PixelImageTrailDocs,
+    })),
   "scroll-choreography": () =>
     import("@/components/docs/scroll-choreography").then((m) => ({
       default: m.ScrollChoreographyDocs,
