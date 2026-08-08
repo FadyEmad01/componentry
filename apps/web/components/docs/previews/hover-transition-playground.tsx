@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { ArrowUpRight, Instagram, MousePointer2 } from "lucide-react";
 import { create } from "zustand";
 import {
   HoverTransition,
@@ -125,7 +124,7 @@ const DEFAULT_CONFIG: HoverTransitionConfig = {
       color: "#62d6e8",
     },
   },
-  duration: 0.65,
+  duration: 0.72,
   easing: "smooth",
 };
 
@@ -160,28 +159,69 @@ const useHoverTransitionStore = create<HoverTransitionStore>((set) => ({
 
 function generateCode(config: HoverTransitionConfig) {
   const card = config.cards[config.selectedCard];
-  return `import { HoverTransition } from "@/components/ui/hover-transition"
+  const person = PEOPLE.find((item) => item.id === config.selectedCard)!;
+  const initials = person.name
+    .split(" ")
+    .map((part) => part[0])
+    .join("");
 
-<HoverTransition
-  effect="${card.effect}"
-  direction="${card.direction}"
-  duration={${config.duration}}
-  easing="${EASINGS[config.easing]}"
-  defaultComponent={<YourDefaultCard />}
-  hoverComponent={<div style={{ backgroundColor: "${card.color}" }}><YourDetails /></div>}
-  className="aspect-[4/5] rounded-3xl"
-/>`;
+  return `"use client"
+
+import { HoverTransition } from "@/components/ui/hover-transition"
+
+function DefaultCard() {
+  return (
+    <article className="relative flex h-full flex-col justify-between overflow-hidden bg-[#ece9e1] p-6 text-[#151515]">
+      <span className="text-xs font-medium uppercase tracking-[0.16em] text-black/50">
+        ${person.role}
+      </span>
+      <div aria-hidden="true" className="absolute inset-0 grid place-items-center text-[9rem] font-semibold tracking-[-0.08em] text-black/[0.06]">
+        ${initials}
+      </div>
+      <div className="relative">
+        <h3 className="text-3xl font-medium tracking-[-0.05em]">${person.name}</h3>
+        <p className="mt-1 text-sm text-black/55">Hover to meet the team.</p>
+      </div>
+    </article>
+  )
+}
+
+function HoverCard() {
+  return (
+    <article className="flex h-full flex-col justify-between p-6 text-[#111]" style={{ backgroundColor: "${card.color}" }}>
+      <p className="max-w-[24ch] text-xl font-medium leading-tight tracking-[-0.035em]">
+        ${person.bio}
+      </p>
+      <div>
+        <p className="font-semibold">${person.name}</p>
+        <p className="mt-1 text-xs uppercase tracking-[0.12em] text-black/55">
+          ${person.role}
+        </p>
+      </div>
+    </article>
+  )
+}
+
+export default function HoverTransitionDemo() {
+  return (
+    <HoverTransition
+      effect="${card.effect}"
+      direction="${card.direction}"
+      duration={${config.duration}}
+      easing="${EASINGS[config.easing]}"
+      defaultComponent={<DefaultCard />}
+      hoverComponent={<HoverCard />}
+      className="aspect-[4/5] w-full max-w-sm rounded-3xl"
+    />
+  )
+}`;
 }
 
 function PortraitCard({
   person,
-  index,
-  accent,
   effect,
 }: {
   person: Person;
-  index: number;
-  accent: string;
   effect: HoverTransitionEffect;
 }) {
   return (
@@ -200,11 +240,7 @@ function PortraitCard({
           {person.role}
         </p>
       </div>
-      <div className="absolute inset-x-[clamp(10px,5cqw,18px)] top-[clamp(10px,5cqw,18px)] flex items-center justify-between font-mono text-[clamp(8px,3cqw,10px)] uppercase tracking-[0.08em] text-black/55">
-        <span className="flex items-center gap-2">
-          <span className="size-2" style={{ backgroundColor: accent }} />
-          {String(index + 1).padStart(2, "0")}
-        </span>
+      <div className="absolute inset-x-[clamp(10px,5cqw,18px)] top-[clamp(10px,5cqw,18px)] flex justify-end font-mono text-[clamp(8px,3cqw,10px)] uppercase tracking-[0.08em] text-black/55">
         <span>{effect}</span>
       </div>
     </article>
@@ -213,12 +249,10 @@ function PortraitCard({
 
 function PersonDetails({
   person,
-  index,
   color,
   effect,
 }: {
   person: Person;
-  index: number;
   color: string;
   effect: HoverTransitionEffect;
 }) {
@@ -232,33 +266,20 @@ function PersonDetails({
       }}
     >
       <div>
-        <div className="flex items-center justify-between font-mono text-[clamp(8px,3cqw,10px)] uppercase tracking-[0.1em] text-black/55">
-          <span>{String(index + 1).padStart(2, "0")}</span>
+        <div className="flex translate-y-2 justify-end blur-[2px] opacity-0 transition-[transform,filter,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[active=true]/hover-card:translate-y-0 group-data-[active=true]/hover-card:blur-none group-data-[active=true]/hover-card:opacity-100 group-data-[active=true]/hover-card:delay-75 motion-reduce:translate-y-0 motion-reduce:blur-none motion-reduce:opacity-100 motion-reduce:transition-none font-mono text-[clamp(8px,3cqw,10px)] uppercase tracking-[0.1em] text-black/55">
           <span>{effect}</span>
         </div>
-        <p className="mt-[clamp(14px,6cqw,28px)] max-w-[29ch] text-[clamp(12px,5.2cqw,19px)] font-medium leading-[1.18] tracking-[-0.035em]">
+        <p className="mt-[clamp(14px,6cqw,28px)] max-w-[29ch] translate-y-3 blur-[3px] opacity-0 transition-[transform,filter,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[active=true]/hover-card:translate-y-0 group-data-[active=true]/hover-card:blur-none group-data-[active=true]/hover-card:opacity-100 group-data-[active=true]/hover-card:delay-100 motion-reduce:translate-y-0 motion-reduce:blur-none motion-reduce:opacity-100 motion-reduce:transition-none text-[clamp(12px,5.2cqw,19px)] font-medium leading-[1.18] tracking-[-0.035em]">
           {person.bio}
         </p>
       </div>
-      <div className="flex items-end justify-between gap-3">
-        <div>
-          <p className="text-[clamp(12px,5cqw,17px)] font-semibold leading-none tracking-[-0.035em]">
-            {person.name}
-          </p>
-          <p className="mt-1 text-[clamp(8px,3cqw,10px)] uppercase tracking-[0.08em] text-black/55">
-            {person.role}
-          </p>
-        </div>
-        <div className="flex items-center gap-1.5" aria-hidden="true">
-          {[MousePointer2, Instagram, ArrowUpRight].map((Icon, iconIndex) => (
-            <span
-              key={iconIndex}
-              className="grid size-[clamp(22px,8cqw,28px)] place-items-center rounded-[6px] bg-black text-white"
-            >
-              <Icon className="size-[55%]" strokeWidth={2.4} />
-            </span>
-          ))}
-        </div>
+      <div className="translate-y-3 blur-[2px] opacity-0 transition-[transform,filter,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[active=true]/hover-card:translate-y-0 group-data-[active=true]/hover-card:blur-none group-data-[active=true]/hover-card:opacity-100 group-data-[active=true]/hover-card:delay-150 motion-reduce:translate-y-0 motion-reduce:blur-none motion-reduce:opacity-100 motion-reduce:transition-none">
+        <p className="text-[clamp(12px,5cqw,17px)] font-semibold leading-none tracking-[-0.035em]">
+          {person.name}
+        </p>
+        <p className="mt-1 text-[clamp(8px,3cqw,10px)] uppercase tracking-[0.08em] text-black/55">
+          {person.role}
+        </p>
       </div>
     </article>
   );
@@ -276,9 +297,12 @@ export function HoverTransitionPlayground() {
   }, [config]);
 
   return (
-    <div className="flex h-full min-h-[520px] w-full items-center justify-center bg-[radial-gradient(circle_at_16%_12%,#ffffff_0%,#eeece5_52%,#dfdcd2_100%)] p-2 [container-type:size] sm:p-4 dark:bg-[radial-gradient(circle_at_18%_10%,#252525_0%,#111_50%,#080808_100%)] lg:p-6">
-      <div className="grid aspect-[.3975] w-full grid-cols-2 grid-rows-4 gap-[3px] overflow-hidden rounded-[clamp(20px,2.4cqw,34px)] bg-[#151515] shadow-[0_30px_90px_rgba(35,30,18,.2)] ring-1 ring-black/10 md:aspect-[1.59] md:w-[min(100cqw,calc(100cqh*1.59))] md:grid-cols-4 md:grid-rows-2 dark:shadow-[0_30px_100px_rgba(0,0,0,.5)] dark:ring-white/10">
-        {PEOPLE.map((person, index) => {
+    <div className="flex h-full min-h-[520px] w-full items-center overflow-hidden py-8 [container-type:size] sm:py-12">
+      <div
+        className="flex w-full snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain scroll-smooth px-4 py-2 [scroll-padding-inline:1rem] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden sm:gap-4 sm:px-6 sm:[scroll-padding-inline:1.5rem] lg:px-8 lg:[scroll-padding-inline:2rem]"
+        aria-label="Team hover transitions"
+      >
+        {PEOPLE.map((person) => {
           const card = config.cards[person.id];
           return (
             <HoverTransition
@@ -290,22 +314,16 @@ export function HoverTransitionPlayground() {
               label={`${person.name}, ${person.role}`}
               onClick={() => selectCard(person.id)}
               defaultComponent={
-                <PortraitCard
-                  person={person}
-                  index={index}
-                  accent={card.color}
-                  effect={card.effect}
-                />
+                <PortraitCard person={person} effect={card.effect} />
               }
               hoverComponent={
                 <PersonDetails
                   person={person}
-                  index={index}
                   color={card.color}
                   effect={card.effect}
                 />
               }
-              className="min-h-0 aspect-[.795] bg-[#f8f8f5] [container-type:inline-size] md:aspect-auto"
+              className="group/hover-card aspect-[.795] w-[clamp(260px,38cqw,390px)] shrink-0 snap-start rounded-[clamp(18px,2cqw,26px)] bg-[#f8f8f5] ring-1 ring-black/10 [container-type:inline-size] dark:ring-white/10"
             />
           );
         })}
