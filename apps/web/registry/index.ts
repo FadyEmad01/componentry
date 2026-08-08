@@ -23,6 +23,14 @@ export function isNewComponent(component: ComponentMetadata): boolean {
 }
 
 export const components: Record<string, ComponentMetadata> = {
+  "case-study-flip-stack": {
+    title: "Case Study Flip Stack",
+    description:
+      "Editorial case study cards that fold upward on scroll to reveal the next story.",
+    category: "Components",
+    slug: "case-study-flip-stack",
+    addedAt: "2026-08-08",
+  },
   "dithered-logo": {
     title: "Dithered Logo",
     description:

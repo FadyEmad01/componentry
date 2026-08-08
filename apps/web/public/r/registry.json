@@ -30,6 +30,10 @@
       "type": "registry:ui"
     },
     {
+      "name": "case-study-flip-stack",
+      "type": "registry:ui"
+    },
+    {
       "name": "circuit-board",
       "type": "registry:ui"
     },

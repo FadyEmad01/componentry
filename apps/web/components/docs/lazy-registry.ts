@@ -22,6 +22,10 @@ const docsImportMap: Record<
     import("@/components/docs/sticky-scroll-cards").then((m) => ({
       default: m.StickyScrollCardsDocs,
     })),
+  "case-study-flip-stack": () =>
+    import("@/components/docs/case-study-flip-stack").then((m) => ({
+      default: m.CaseStudyFlipStackDocs,
+    })),
   "music-player": () =>
     import("@/components/docs/music-player").then((m) => ({
       default: m.MusicPlayerDocs,
