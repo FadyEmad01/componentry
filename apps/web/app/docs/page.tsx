@@ -75,12 +75,17 @@ function ComponentCard({
     [component.previewVideo]
   ) as PreviewSources | null
   const previewVideoSrc = useMemo(
-    () => (previewSources ? getPreferredPreviewSrc(previewSources) : ""),
-    [previewSources]
+    () =>
+      previewSources
+        ? component.previewVideo?.startsWith("/")
+          ? previewSources.mp4
+          : getPreferredPreviewSrc(previewSources)
+        : "",
+    [component.previewVideo, previewSources]
   )
   const previewPosterSrc = useMemo(
-    () => getPreviewPosterSrc(component.previewVideo),
-    [component.previewVideo]
+    () => component.previewImage ?? getPreviewPosterSrc(component.previewVideo),
+    [component.previewImage, component.previewVideo]
   )
 
   useEffect(() => {
@@ -222,6 +227,7 @@ function ComponentCard({
               <video
                 ref={videoRef}
                 src={previewVideoSrc}
+                autoPlay={isHovered}
                 loop
                 muted
                 playsInline

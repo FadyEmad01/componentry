@@ -12,6 +12,7 @@ export interface ComponentMetadata {
   slug: string;
   addedAt?: string;
   previewVideo?: string;
+  previewImage?: string;
 }
 
 const NEW_BADGE_DURATION_MS = 5 * 24 * 60 * 60 * 1000; // 5 days
@@ -225,6 +226,17 @@ export const components: Record<string, ComponentMetadata> = {
     addedAt: "2026-06-07",
     previewVideo:
       "https://pub-a50e7f4ea75a4970a1738e50d53b6eb1.r2.dev/preview-videos/component-animations/orbitcardstack.webm",
+  },
+  "spiral-3d-slider": {
+    title: "Spiral 3D Slider",
+    description:
+      "A compact, autoplaying image gallery that responds to scroll along a smooth 3D spiral.",
+    category: "Components",
+    slug: "spiral-3d-slider",
+    addedAt: "2026-08-08",
+    previewVideo:
+      "/preview-videos/component-animations/spiral3dslider.webm",
+    previewImage: "/images/spiral-3d-slider/catalog-preview.jpg",
   },
   "newsletter-bookshelf": {
     title: "Newsletter Bookshelf",
