@@ -174,6 +174,10 @@ const docsImportMap: Record<
     import("@/components/docs/orbit-card-stack").then((m) => ({
       default: m.OrbitCardStackDocs,
     })),
+  "wheel-carousel": () =>
+    import("@/components/docs/wheel-carousel").then((m) => ({
+      default: m.WheelCarouselDocs,
+    })),
   "newsletter-bookshelf": () =>
     import("@/components/docs/newsletter-bookshelf").then((m) => ({
       default: m.NewsletterBookshelfDocs,
