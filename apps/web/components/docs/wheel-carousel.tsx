@@ -1,7 +1,6 @@
 import React from "react";
 import { DocsPageLayout } from "@/components/docs-page-layout";
 import {
-  WheelCarouselCustomItemsPreview,
   WheelCarouselLandscapePreview,
   WheelCarouselPersonalizePanel,
   WheelCarouselPreview,
@@ -14,24 +13,7 @@ const defaultCode = `import { WheelCarousel } from "@/components/ui/wheel-carous
   <WheelCarousel />
 </div>`;
 
-const rightSideCode = `import { WheelCarousel } from "@/components/ui/wheel-carousel"
-
-<div className="h-[680px] w-full">
-  <WheelCarousel
-    photoSide="right"
-    photoAspect="4/3"
-    photoWidth={30}
-    contentWidth={760}
-    gap={24}
-    radius={260}
-    spacing={13}
-    visibleItems={6}
-    photoRadius={16}
-    edgeFade
-  />
-</div>`;
-
-const customItemsCode = `import {
+const usageCode = `import {
   WheelCarousel,
   type WheelCarouselItem,
 } from "@/components/ui/wheel-carousel"
@@ -52,26 +34,26 @@ const projects: WheelCarouselItem[] = [
     image: "/images/projects/glass-pavilion.jpg",
     imageAlt: "Minimal glass pavilion surrounded by trees",
   },
-  {
-    label: "Stone Atelier",
-    image: "/images/projects/stone-atelier.jpg",
-    imageAlt: "Stone house exterior with warm evening light",
-  },
-  {
-    label: "Palm Residence",
-    image: "/images/projects/palm-residence.jpg",
-    imageAlt: "Contemporary residence with palm trees",
-  },
 ]
 
 <div className="h-[680px] w-full">
+  <WheelCarousel items={projects} />
+</div>`;
+
+const rightSideCode = `import { WheelCarousel } from "@/components/ui/wheel-carousel"
+
+<div className="h-[680px] w-full">
   <WheelCarousel
-    items={projects}
-    initialIndex={2}
-    photoAspect="1/1"
-    photoWidth={28}
-    radius={255}
-    visibleItems={5}
+    photoSide="right"
+    photoAspect="4/3"
+    photoWidth={30}
+    contentWidth={760}
+    gap={24}
+    radius={260}
+    spacing={13}
+    visibleItems={6}
+    photoRadius={16}
+    edgeFade
   />
 </div>`;
 
@@ -91,14 +73,9 @@ export async function WheelCarouselDocs() {
       installDependencies="framer-motion next-themes clsx tailwind-merge"
       installSourceCode={sourceCode}
       installSourceFilename="components/ui/wheel-carousel.tsx"
-      usageCode={defaultCode}
+      usageCode={usageCode}
       fullWidthPreview
       examples={[
-        {
-          title: "Custom photos and names",
-          preview: <WheelCarouselCustomItemsPreview />,
-          code: customItemsCode,
-        },
         {
           title: "Right-side landscape image",
           preview: <WheelCarouselLandscapePreview />,
@@ -109,8 +86,9 @@ export async function WheelCarouselDocs() {
         {
           name: "items",
           type: "WheelCarouselItem[]",
+          default: "Built-in demo set",
           description:
-            "Custom scrolling names and their matching active photo URLs.",
+            "Your own option names and photos. Each entry takes a label and an image URL, plus an optional imageAlt.",
         },
         {
           name: "mode",
@@ -147,6 +125,12 @@ export async function WheelCarouselDocs() {
           type: "number",
           default: "900",
           description: "Maximum inner content width in pixels.",
+        },
+        {
+          name: "gap",
+          type: "number",
+          default: "0",
+          description: "Space between the image column and the wheel in pixels.",
         },
         {
           name: "radius",
@@ -186,6 +170,90 @@ export async function WheelCarouselDocs() {
           description: "Preserves drag and wheel velocity after input ends.",
         },
         {
+          name: "appear",
+          type: "boolean",
+          default: "true",
+          description: "Plays an entrance animation on mount.",
+        },
+        {
+          name: "crossfadeDuration",
+          type: "number",
+          default: "0.5",
+          description: "Duration in seconds of the active image crossfade.",
+        },
+        {
+          name: "scrollSpeed",
+          type: "number",
+          default: "0.008",
+          description: "Rotation per wheel delta pixel.",
+        },
+        {
+          name: "dragSpeed",
+          type: "number",
+          default: "0.02",
+          description: "Rotation per pointer pixel dragged.",
+        },
+        {
+          name: "background",
+          type: "string",
+          default: '"rgb(255, 246, 236)"',
+          description: 'Canvas color in "custom" mode.',
+        },
+        {
+          name: "panelColor",
+          type: "string",
+          description:
+            'Image placeholder color in "custom" mode. Defaults to background.',
+        },
+        {
+          name: "textColor",
+          type: "string",
+          default: '"rgba(180, 90, 20, 0.45)"',
+          description: 'Inactive label color in "custom" mode.',
+        },
+        {
+          name: "selectedColor",
+          type: "string",
+          default: '"rgb(180, 84, 30)"',
+          description: 'Active label color in "custom" mode.',
+        },
+        {
+          name: "showMarker",
+          type: "boolean",
+          default: "true",
+          description: "Shows the dot marking the selection point.",
+        },
+        {
+          name: "markerColor",
+          type: "string",
+          default: '"rgb(232, 121, 46)"',
+          description: 'Selection dot color in "custom" mode.',
+        },
+        {
+          name: "markerSize",
+          type: "number",
+          default: "16",
+          description: "Selection dot diameter in pixels.",
+        },
+        {
+          name: "markerGap",
+          type: "number",
+          default: "20",
+          description: "Distance between the selection dot and the labels.",
+        },
+        {
+          name: "edgeFade",
+          type: "boolean",
+          default: "true",
+          description: "Fades labels at the top and bottom edges.",
+        },
+        {
+          name: "edgeFadeSize",
+          type: "number",
+          default: "30",
+          description: "Size of the edge fade as a percentage.",
+        },
+        {
           name: "activeIndex",
           type: "number",
           description: "Controlled active item index.",
@@ -205,6 +273,16 @@ export async function WheelCarouselDocs() {
           name: "className",
           type: "string",
           description: "Additional classes for the outer carousel.",
+        },
+        {
+          name: "photoClassName",
+          type: "string",
+          description: "Additional classes for the active image frame.",
+        },
+        {
+          name: "itemClassName",
+          type: "string",
+          description: "Additional classes for each wheel label.",
         },
       ]}
     />

@@ -3,7 +3,6 @@
 import { create } from "zustand";
 import {
   WheelCarousel,
-  type WheelCarouselItem,
   type WheelCarouselMode,
 } from "@workspace/ui/components/wheel-carousel";
 import { cn } from "@workspace/ui/lib/utils";
@@ -79,57 +78,6 @@ const colorControls: Array<{
   { key: "markerColor", label: "Marker" },
 ];
 
-export const customWheelCarouselItems: WheelCarouselItem[] = [
-  {
-    label: "Canyon House",
-    image:
-      "https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=1200&q=80&auto=format&fit=crop",
-    imageAlt: "Modern concrete home built into a desert canyon",
-  },
-  {
-    label: "Harbor Loft",
-    image:
-      "https://images.unsplash.com/photo-1494526585095-c41746248156?w=1200&q=80&auto=format&fit=crop",
-    imageAlt: "Bright coastal loft with large windows",
-  },
-  {
-    label: "Glass Pavilion",
-    image:
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80&auto=format&fit=crop",
-    imageAlt: "Minimal glass pavilion surrounded by trees",
-  },
-  {
-    label: "Stone Atelier",
-    image:
-      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=1200&q=80&auto=format&fit=crop",
-    imageAlt: "Stone house exterior with warm evening light",
-  },
-  {
-    label: "Palm Residence",
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80&auto=format&fit=crop",
-    imageAlt: "Contemporary residence with palm trees",
-  },
-  {
-    label: "Gallery Steps",
-    image:
-      "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1200&q=80&auto=format&fit=crop",
-    imageAlt: "Architectural stairway inside a gallery-like home",
-  },
-  {
-    label: "Forest Annex",
-    image:
-      "https://images.unsplash.com/photo-1600607688969-a5bfcd646154?w=1200&q=80&auto=format&fit=crop",
-    imageAlt: "Warm modern home beside dense forest",
-  },
-  {
-    label: "Courtyard Suite",
-    image:
-      "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=1200&q=80&auto=format&fit=crop",
-    imageAlt: "Open courtyard with modern residential facade",
-  },
-];
-
 function usePreviewAppearance() {
   const mode = useWheelCarouselPreview((state) => state.mode);
   const customPalette = useWheelCarouselPreview((state) => state.customPalette);
@@ -188,30 +136,6 @@ export function WheelCarouselLandscapePreview() {
         spacing={13}
         visibleItems={6}
         photoRadius={16}
-        edgeFade
-        itemClassName="!text-[clamp(0.95rem,1.9vw,1.4rem)]"
-      />
-    </div>
-  );
-}
-
-export function WheelCarouselCustomItemsPreview() {
-  const { mode, customPalette } = usePreviewAppearance();
-
-  return (
-    <div className="h-full min-h-[560px] w-full">
-      <WheelCarousel
-        {...sharedCarouselProps(mode, customPalette)}
-        items={customWheelCarouselItems}
-        initialIndex={2}
-        className="h-full min-h-0 px-8 sm:px-12"
-        contentWidth={760}
-        radius={255}
-        spacing={14}
-        visibleItems={5}
-        photoWidth={28}
-        photoAspect="1/1"
-        photoRadius={18}
         edgeFade
         itemClassName="!text-[clamp(0.95rem,1.9vw,1.4rem)]"
       />
@@ -315,11 +239,6 @@ export function WheelCarouselPersonalizePanel() {
                     type="color"
                     aria-label={control.label}
                     value={customPalette[control.key]}
-                    onInput={(event) =>
-                      updateCustomPalette({
-                        [control.key]: event.currentTarget.value,
-                      })
-                    }
                     onChange={(event) =>
                       updateCustomPalette({
                         [control.key]: event.target.value,

@@ -8,6 +8,7 @@ import {
   type PointerEvent,
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -143,6 +144,7 @@ export function WheelCarousel({
   itemClassName,
 }: WheelCarouselProps) {
   const reduceMotion = useReducedMotion() ?? false;
+  const instanceId = useId();
   const { resolvedTheme } = useTheme();
   const [themeReady, setThemeReady] = useState(false);
   const resolvedMode =
@@ -160,6 +162,7 @@ export function WheelCarousel({
   const stageRef = useRef<HTMLDivElement>(null);
   const rotationRef = useRef(startingIndex);
   const selectedRef = useRef(startingIndex);
+  const appliedActiveIndexRef = useRef<number | null>(null);
   const velocityRef = useRef(0);
   const draggingRef = useRef(false);
   const dragOriginRef = useRef({ y: 0, rotation: startingIndex });
@@ -228,6 +231,9 @@ export function WheelCarousel({
     [carouselItems, itemCount, onActiveChange],
   );
 
+  const commitRotationRef = useRef(commitRotation);
+  commitRotationRef.current = commitRotation;
+
   const runAnimation = useCallback(() => {
     if (frameRef.current !== null) return;
 
@@ -272,6 +278,7 @@ export function WheelCarousel({
     if (!stage) return;
 
     const handleWheel = (event: globalThis.WheelEvent) => {
+      if (event.ctrlKey || event.metaKey) return; // don't hijack pinch-zoom
       event.preventDefault();
       const delta = event.deltaY * scrollSpeed;
       commitRotation(rotationRef.current + delta);
@@ -286,14 +293,16 @@ export function WheelCarousel({
   useEffect(() => {
     if (activeIndex === undefined) return;
     const controlledIndex = wrapIndex(activeIndex, itemCount);
+    if (appliedActiveIndexRef.current === controlledIndex) return;
+    appliedActiveIndexRef.current = controlledIndex;
     const currentIndex = wrapIndex(Math.round(rotationRef.current), itemCount);
     let delta = controlledIndex - currentIndex;
     if (delta > itemCount / 2) delta -= itemCount;
     if (delta < -itemCount / 2) delta += itemCount;
     selectedRef.current = controlledIndex;
     setSelectedIndex(controlledIndex);
-    commitRotation(rotationRef.current + delta);
-  }, [activeIndex, commitRotation, itemCount]);
+    commitRotationRef.current(rotationRef.current + delta);
+  }, [activeIndex, itemCount]);
 
   const moveBy = (amount: number) => {
     velocityRef.current = 0;
@@ -302,6 +311,7 @@ export function WheelCarousel({
   };
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (!event.isPrimary || event.button !== 0) return;
     draggingRef.current = true;
     setIsDragging(true);
     velocityRef.current = 0;
@@ -342,15 +352,19 @@ export function WheelCarousel({
       event.preventDefault();
       velocityRef.current = 0;
       commitRotation(rotationRef.current - selectedIndex);
+      runAnimation();
     }
     if (event.key === "End") {
       event.preventDefault();
+      velocityRef.current = 0;
       const lastIndex = itemCount - 1;
       commitRotation(rotationRef.current + lastIndex - selectedIndex);
+      runAnimation();
     }
   };
 
-  const selectedItem = carouselItems[selectedIndex]!;
+  const safeSelectedIndex = wrapIndex(selectedIndex, itemCount);
+  const selectedItem = carouselItems[safeSelectedIndex]!;
   const mask = edgeFade
     ? `linear-gradient(to bottom, transparent 0%, black ${edgeFadeSize}%, black ${100 - edgeFadeSize}%, transparent 100%)`
     : undefined;
@@ -370,7 +384,12 @@ export function WheelCarousel({
         ref={stageRef}
         role="listbox"
         aria-label="Wheel carousel"
-        aria-activedescendant={`wheel-carousel-item-${selectedIndex}`}
+        aria-activedescendant={
+          Math.abs(shortestOffset(safeSelectedIndex, rotation, itemCount)) <=
+          visibleItems + 1
+            ? `${instanceId}-item-${safeSelectedIndex}`
+            : undefined
+        }
         tabIndex={0}
         className={cn(
           "flex h-full w-full touch-none select-none items-stretch overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-current",
@@ -404,7 +423,7 @@ export function WheelCarousel({
           >
             <AnimatePresence initial={false} mode="sync">
               <motion.img
-                key={`${selectedIndex}-${selectedItem.image}`}
+                key={`${safeSelectedIndex}-${selectedItem.image}`}
                 src={selectedItem.image}
                 alt={selectedItem.imageAlt ?? selectedItem.label}
                 initial={reduceMotion ? false : { opacity: 0, scale: 1.04 }}
@@ -451,7 +470,7 @@ export function WheelCarousel({
 
             return (
               <div
-                id={`wheel-carousel-item-${index}`}
+                id={`${instanceId}-item-${index}`}
                 key={`${item.label}-${index}`}
                 role="option"
                 aria-selected={selected}
@@ -474,7 +493,7 @@ export function WheelCarousel({
       </div>
 
       <span className="sr-only" aria-live="polite">
-        {selectedItem.label}, item {selectedIndex + 1} of {itemCount}
+        {selectedItem.label}, item {safeSelectedIndex + 1} of {itemCount}
       </span>
     </motion.div>
   );
