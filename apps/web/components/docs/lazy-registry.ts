@@ -34,6 +34,10 @@ const docsImportMap: Record<
     import("@/components/docs/scroll-split-card").then((m) => ({
       default: m.ScrollSplitCardDocs,
     })),
+  "hover-transition": () =>
+    import("@/components/docs/hover-transition").then((m) => ({
+      default: m.HoverTransitionDocs,
+    })),
   "scroll-based-velocity": () =>
     import("@/components/docs/scroll-based-velocity").then((m) => ({
       default: m.ScrollBasedVelocityDocs,
@@ -177,6 +181,10 @@ const docsImportMap: Record<
   "orbit-card-stack": () =>
     import("@/components/docs/orbit-card-stack").then((m) => ({
       default: m.OrbitCardStackDocs,
+    })),
+  "spiral-3d-slider": () =>
+    import("@/components/docs/spiral-3d-slider").then((m) => ({
+      default: m.Spiral3DSliderDocs,
     })),
   "newsletter-bookshelf": () =>
     import("@/components/docs/newsletter-bookshelf").then((m) => ({
