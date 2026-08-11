@@ -155,7 +155,7 @@ export function HoverTransition({
   hoverComponent,
   effect = "wipe",
   direction = "right",
-  duration = 0.65,
+  duration = 0.72,
   easing = "cubic-bezier(0.22, 1, 0.36, 1)",
   label = "Interactive hover transition",
   className,
@@ -163,18 +163,40 @@ export function HoverTransition({
   onMouseLeave,
   onFocus,
   onBlur,
+  onPointerMove,
+  onPointerLeave,
   tabIndex,
   ...props
 }: HoverTransitionProps) {
+  const rootRef = React.useRef<HTMLDivElement>(null);
   const [active, setActive] = React.useState(false);
   const reducedMotion = usePrefersReducedMotion();
   const vector = directionVectors[direction];
-  const seconds = reducedMotion ? 0.01 : Math.max(0, duration);
-  const transition = `all ${seconds}s ${easing}`;
+  const perceivedDurationScale =
+    effect === "diagonal" || effect === "ripple" ? 1.25 : 1;
+  const seconds = reducedMotion
+    ? 0
+    : Math.max(0, duration) * perceivedDurationScale;
   const before = defaultComponent ?? <FallbackCard />;
   const after = hoverComponent ?? <FallbackCard hover />;
   const distanceX = vector.x * 100;
   const distanceY = vector.y * 100;
+
+  const transitionFor = (properties: string[], delay = 0, durationScale = 1) =>
+    properties
+      .map(
+        (property) =>
+          `${property} ${seconds * durationScale}s ${easing} ${reducedMotion ? 0 : delay}s`,
+      )
+      .join(", ");
+
+  const layerTransition = transitionFor([
+    "clip-path",
+    "transform",
+    "opacity",
+    "filter",
+    "border-radius",
+  ]);
 
   const activate = (event: React.MouseEvent<HTMLDivElement>) => {
     setActive(true);
@@ -185,8 +207,48 @@ export function HoverTransition({
     onMouseLeave?.(event);
   };
 
+  const resetTilt = () => {
+    const element = rootRef.current;
+    if (!element) return;
+    element.style.setProperty("--hover-tilt-x", "0deg");
+    element.style.setProperty("--hover-tilt-y", "0deg");
+  };
+
+  const trackPointer = (event: React.PointerEvent<HTMLDivElement>) => {
+    onPointerMove?.(event);
+    if (reducedMotion || event.pointerType !== "mouse") return;
+
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const x = Math.min(
+      1,
+      Math.max(0, (event.clientX - bounds.left) / bounds.width),
+    );
+    const y = Math.min(
+      1,
+      Math.max(0, (event.clientY - bounds.top) / bounds.height),
+    );
+    const maxTilt = 2.4;
+
+    event.currentTarget.style.setProperty(
+      "--hover-tilt-x",
+      `${((0.5 - y) * maxTilt).toFixed(2)}deg`,
+    );
+    event.currentTarget.style.setProperty(
+      "--hover-tilt-y",
+      `${((x - 0.5) * maxTilt).toFixed(2)}deg`,
+    );
+    event.currentTarget.style.setProperty(
+      "--hover-glare-x",
+      `${(x * 100).toFixed(1)}%`,
+    );
+    event.currentTarget.style.setProperty(
+      "--hover-glare-y",
+      `${(y * 100).toFixed(1)}%`,
+    );
+  };
+
   const hoverLayer = (style: React.CSSProperties) => (
-    <Layer style={{ transition, ...style }}>{after}</Layer>
+    <Layer style={{ transition: layerTransition, ...style }}>{after}</Layer>
   );
 
   let animatedLayers: React.ReactNode;
@@ -197,6 +259,9 @@ export function HoverTransition({
         clipPath: active
           ? `circle(150% at ${rippleOrigins[direction]})`
           : `circle(0% at ${rippleOrigins[direction]})`,
+        filter: active ? "blur(0px)" : "blur(2px)",
+        transform: active ? "scale(1)" : "scale(1.035)",
+        transformOrigin: rippleOrigins[direction],
       });
       break;
     case "parallax":
@@ -205,9 +270,10 @@ export function HoverTransition({
           <Layer
             style={{
               transform: active
-                ? `translate3d(${-distanceX * 0.18}%, ${-distanceY * 0.18}%, 0) scale(1.06)`
+                ? `translate3d(${-distanceX * 0.12}%, ${-distanceY * 0.12}%, 0) scale(1.045)`
                 : "translate3d(0, 0, 0) scale(1)",
-              transition,
+              filter: active ? "brightness(.78) saturate(.75)" : "none",
+              transition: transitionFor(["transform", "filter"]),
             }}
           >
             {before}
@@ -215,7 +281,8 @@ export function HoverTransition({
           <Layer
             style={{
               clipPath: active ? "inset(0)" : hiddenInset(direction),
-              transition,
+              filter: active ? "blur(0px)" : "blur(2px)",
+              transition: transitionFor(["clip-path", "filter"]),
             }}
           >
             <div
@@ -223,8 +290,8 @@ export function HoverTransition({
               style={{
                 transform: active
                   ? "translate3d(0, 0, 0) scale(1)"
-                  : `translate3d(${distanceX * 0.42}%, ${distanceY * 0.42}%, 0) scale(1.1)`,
-                transition,
+                  : `translate3d(${distanceX * 0.24}%, ${distanceY * 0.24}%, 0) scale(1.07)`,
+                transition: transitionFor(["transform"]),
               }}
             >
               {after}
@@ -239,7 +306,8 @@ export function HoverTransition({
         <>
           {hoverLayer({
             opacity: active ? 1 : 0,
-            transform: active ? "scale(1)" : "scale(.9)",
+            filter: active ? "blur(0px)" : "blur(3px)",
+            transform: active ? "scale(1)" : "scale(.96)",
           })}
           <Layer
             style={{
@@ -251,7 +319,8 @@ export function HoverTransition({
                   ? "translate3d(0, -100%, 0)"
                   : "translate3d(-100%, 0, 0)"
                 : "translate3d(0, 0, 0)",
-              transition,
+              filter: active ? "blur(1px)" : "blur(0px)",
+              transition: transitionFor(["transform", "filter"]),
             }}
           >
             {before}
@@ -266,7 +335,8 @@ export function HoverTransition({
                   ? "translate3d(0, 100%, 0)"
                   : "translate3d(100%, 0, 0)"
                 : "translate3d(0, 0, 0)",
-              transition,
+              filter: active ? "blur(1px)" : "blur(0px)",
+              transition: transitionFor(["transform", "filter"]),
             }}
           >
             {before}
@@ -285,7 +355,11 @@ export function HoverTransition({
         : "polygon(100% 0, 100% 100%, 0 100%)";
       animatedLayers = (
         <>
-          {hoverLayer({ opacity: active ? 1 : 0 })}
+          {hoverLayer({
+            opacity: active ? 1 : 0,
+            filter: active ? "blur(0px)" : "blur(2px)",
+            transform: active ? "scale(1)" : "scale(.97)",
+          })}
           <Layer
             style={{
               clipPath: firstClip,
@@ -294,7 +368,8 @@ export function HoverTransition({
                   ? "translate3d(100%, -100%, 0)"
                   : "translate3d(-100%, -100%, 0)"
                 : "translate3d(0, 0, 0)",
-              transition,
+              filter: active ? "blur(1px)" : "blur(0px)",
+              transition: transitionFor(["transform", "filter"]),
             }}
           >
             {before}
@@ -307,7 +382,8 @@ export function HoverTransition({
                   ? "translate3d(-100%, 100%, 0)"
                   : "translate3d(100%, 100%, 0)"
                 : "translate3d(0, 0, 0)",
-              transition,
+              filter: active ? "blur(1px)" : "blur(0px)",
+              transition: transitionFor(["transform", "filter"]),
             }}
           >
             {before}
@@ -318,35 +394,48 @@ export function HoverTransition({
     }
     case "morph":
       animatedLayers = hoverLayer({
-        borderRadius: active ? "0%" : "50%",
-        clipPath: active ? "inset(0% round 0%)" : "inset(38% round 50%)",
+        borderRadius: active ? "0%" : "42%",
+        clipPath: active ? "inset(0% round 0%)" : "inset(43% round 42%)",
+        filter: active ? "blur(0px)" : "blur(3px)",
         opacity: active ? 1 : 0,
         transform: active
           ? "translate3d(0, 0, 0) scale(1) rotate(0deg)"
-          : `translate3d(${distanceX * 0.08}%, ${distanceY * 0.08}%, 0) scale(.72) rotate(${vector.x < 0 ? -4 : 4}deg)`,
+          : `translate3d(${distanceX * 0.04}%, ${distanceY * 0.04}%, 0) scale(.86) rotate(${vector.x < 0 ? -2 : 2}deg)`,
         transformOrigin: rippleOrigins[direction],
       });
       break;
     case "strips": {
       const vertical = Math.abs(vector.x) >= Math.abs(vector.y);
-      animatedLayers = Array.from({ length: 6 }, (_, index) => {
-        const start = (index / 6) * 100;
-        const end = ((index + 1) / 6) * 100;
+      const stripCount = 8;
+      animatedLayers = Array.from({ length: stripCount }, (_, index) => {
+        const start = (index / stripCount) * 100;
+        const end = ((index + 1) / stripCount) * 100;
         const clipPath = vertical
           ? `inset(0 ${100 - end}% 0 ${start}%)`
           : `inset(${start}% 0 ${100 - end}% 0)`;
-        const offsetX = (vector.x || (vector.y === 0 ? 1 : 0)) * 105;
-        const offsetY = vector.y * 105;
+        const offsetX = (vector.x || (vector.y === 0 ? 1 : 0)) * 72;
+        const offsetY = vector.y * 72;
+        const staggerIndex = active ? index : stripCount - index - 1;
+        const staggerWindow = seconds * 0.15;
+        const stripDelay =
+          stripCount > 1
+            ? (staggerIndex / (stripCount - 1)) * staggerWindow
+            : 0;
         return (
           <Layer
             key={index}
             style={{
               clipPath,
+              filter: active ? "blur(0px)" : "blur(1.5px)",
               opacity: active ? 1 : 0,
               transform: active
                 ? "translate3d(0, 0, 0)"
                 : `translate3d(${offsetX}%, ${offsetY}%, 0)`,
-              transition: `all ${seconds}s ${easing} ${index * 0.035}s`,
+              transition: transitionFor(
+                ["transform", "opacity", "filter"],
+                stripDelay,
+                0.85,
+              ),
             }}
           >
             {after}
@@ -362,22 +451,24 @@ export function HoverTransition({
             style={{
               transform: active
                 ? direction === "center"
-                  ? "scale(1.08)"
-                  : `translate3d(${-distanceX}%, ${-distanceY}%, 0)`
+                  ? "scale(1.035)"
+                  : `translate3d(${-distanceX * 0.16}%, ${-distanceY * 0.16}%, 0) scale(1.025)`
                 : "translate3d(0, 0, 0)",
-              opacity: active && direction === "center" ? 0 : 1,
-              transition,
+              filter: active ? "brightness(.72) blur(2px)" : "none",
+              opacity: active ? 0 : 1,
+              transition: transitionFor(["transform", "opacity", "filter"]),
             }}
           >
             {before}
           </Layer>
           {hoverLayer({
-            opacity: active ? 1 : direction === "center" ? 0 : 1,
+            opacity: active ? 1 : 0,
+            filter: active ? "blur(0px)" : "blur(3px)",
             transform: active
               ? "translate3d(0, 0, 0)"
               : direction === "center"
-                ? "scale(.84)"
-                : `translate3d(${distanceX}%, ${distanceY}%, 0)`,
+                ? "scale(.96)"
+                : `translate3d(${distanceX * 0.16}%, ${distanceY * 0.16}%, 0) scale(.985)`,
           })}
         </>
       );
@@ -386,6 +477,9 @@ export function HoverTransition({
     default:
       animatedLayers = hoverLayer({
         clipPath: active ? "inset(0)" : hiddenInset(direction),
+        filter: active ? "blur(0px)" : "blur(1.5px)",
+        transform: active ? "scale(1)" : "scale(1.025)",
+        transformOrigin: rippleOrigins[direction],
       });
       break;
   }
@@ -399,6 +493,7 @@ export function HoverTransition({
   return (
     <div
       {...props}
+      ref={rootRef}
       role="group"
       aria-label={label}
       tabIndex={tabIndex ?? 0}
@@ -410,6 +505,11 @@ export function HoverTransition({
       )}
       onMouseEnter={activate}
       onMouseLeave={deactivate}
+      onPointerMove={trackPointer}
+      onPointerLeave={(event) => {
+        resetTilt();
+        onPointerLeave?.(event);
+      }}
       onFocus={(event) => {
         setActive(true);
         onFocus?.(event);
@@ -420,10 +520,40 @@ export function HoverTransition({
         onBlur?.(event);
       }}
     >
-      <div className={cn("h-full w-full", duplicatesDefault && "invisible")}>
-        {before}
+      <div
+        className="relative h-full w-full"
+        style={{
+          transform: reducedMotion
+            ? "none"
+            : `perspective(1000px) rotateX(var(--hover-tilt-x, 0deg)) rotateY(var(--hover-tilt-y, 0deg)) scale(${active ? 1.012 : 1})`,
+          transformStyle: "preserve-3d",
+          transition: reducedMotion
+            ? "none"
+            : `transform ${active ? 0.22 : 0.55}s ${easing}`,
+        }}
+      >
+        <div
+          className={cn("h-full w-full", duplicatesDefault && "invisible")}
+          style={{
+            filter: active ? "brightness(.86) saturate(.88)" : "none",
+            transform: active ? "scale(1.025)" : "scale(1)",
+            transition: transitionFor(["transform", "filter"]),
+          }}
+        >
+          {before}
+        </div>
+        {animatedLayers}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 mix-blend-screen"
+          style={{
+            background:
+              "radial-gradient(circle 180px at var(--hover-glare-x, 50%) var(--hover-glare-y, 50%), rgba(255,255,255,.22), rgba(255,255,255,.05) 48%, transparent 78%)",
+            opacity: active && !reducedMotion ? 0.16 : 0,
+            transition: reducedMotion ? "none" : `opacity 0.3s ${easing}`,
+          }}
+        />
       </div>
-      {animatedLayers}
     </div>
   );
 }

@@ -218,6 +218,10 @@
       "type": "registry:ui"
     },
     {
+      "name": "spiral-3d-slider",
+      "type": "registry:ui"
+    },
+    {
       "name": "split-flap-display",
       "type": "registry:ui"
     },
