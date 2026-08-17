@@ -243,6 +243,14 @@ export const components: Record<string, ComponentMetadata> = {
     previewVideo:
       "https://pub-a50e7f4ea75a4970a1738e50d53b6eb1.r2.dev/preview-videos/component-animations/orbitcardstack.webm",
   },
+  "wheel-carousel": {
+    title: "Wheel Carousel",
+    description:
+      "A cinematic rotating-wheel picker with inertial drag, curved fading labels, and crossfading project imagery.",
+    category: "Components",
+    slug: "wheel-carousel",
+    addedAt: "2026-08-10",
+  },
   "spiral-3d-slider": {
     title: "Spiral 3D Slider",
     description:
