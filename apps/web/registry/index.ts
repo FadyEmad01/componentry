@@ -31,6 +31,8 @@ export const components: Record<string, ComponentMetadata> = {
     category: "Components",
     slug: "case-study-flip-stack",
     addedAt: "2026-08-08",
+    previewVideo:
+      "https://pub-a50e7f4ea75a4970a1738e50d53b6eb1.r2.dev/preview-videos/component-animations/casestudyflipstack.webm",
   },
   "dithered-logo": {
     title: "Dithered Logo",
@@ -197,6 +199,8 @@ export const components: Record<string, ComponentMetadata> = {
     category: "Components",
     slug: "fisheye-infinite-grid",
     addedAt: "2026-08-08",
+    previewVideo:
+      "https://pub-a50e7f4ea75a4970a1738e50d53b6eb1.r2.dev/preview-videos/component-animations/fisheyeinfinitegrid.webm",
   },
   "github-calendar": {
     title: "Github Calendar",

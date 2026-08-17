@@ -161,9 +161,9 @@ function FlipCard({
           transformOrigin: "50% 100%",
         }}
       >
-        <div className="flex min-w-0 flex-col p-[clamp(24px,4.5vw,72px)] md:pr-[clamp(22px,3.5vw,56px)]">
+        <div className="flex min-w-0 flex-col p-[clamp(24px,3vw,48px)] md:pr-[clamp(22px,3vw,48px)]">
           <div className="flex items-start">
-            <span className="text-[clamp(24px,3vw,46px)] font-medium leading-none tracking-[-0.06em]">
+            <span className="text-[clamp(24px,2.5vw,36px)] font-medium leading-none tracking-[-0.06em]">
               {item.number ?? String(index + 1).padStart(2, "0")}
             </span>
           </div>
@@ -172,10 +172,10 @@ function FlipCard({
             <p className="mb-[clamp(10px,1.5vw,22px)] text-[10px] font-semibold uppercase tracking-[0.16em] opacity-70 sm:text-xs">
               {item.eyebrow}
             </p>
-            <h2 className="max-w-[16ch] text-balance text-[clamp(28px,4.25vw,66px)] font-semibold leading-[0.96] tracking-[-0.05em]">
+            <h2 className="max-w-[16ch] text-balance text-[clamp(28px,3.25vw,48px)] font-semibold leading-[0.96] tracking-[-0.05em]">
               {item.title}
             </h2>
-            <p className="mt-[clamp(16px,2.4vw,34px)] max-w-[42rem] text-[clamp(13px,1.35vw,20px)] leading-[1.5] opacity-82">
+            <p className="mt-[clamp(16px,1.8vw,24px)] max-w-[42rem] text-[clamp(13px,1.1vw,16px)] leading-[1.5] opacity-82">
               {item.description}
             </p>
           </div>
@@ -259,7 +259,7 @@ export function CaseStudyFlipStack({
         style={{ height: `${(Math.max(safeItems.length, 1) + 1) * 100}vh` }}
       >
         <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden px-[clamp(14px,4vw,64px)] py-8">
-          <div className="relative mx-auto aspect-[3/4] w-full max-w-[1440px] [perspective:800px] sm:aspect-[1.76/1]">
+          <div className="relative mx-auto aspect-[3/4] w-full max-w-[860px] [perspective:800px] sm:aspect-[1.76/1]">
             {[...safeItems].reverse().map((item, reverseIndex) => {
               const index = safeItems.length - reverseIndex - 1;
               return (
