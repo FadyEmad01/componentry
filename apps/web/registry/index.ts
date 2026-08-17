@@ -79,6 +79,8 @@ export const components: Record<string, ComponentMetadata> = {
     category: "Components",
     slug: "hover-transition",
     addedAt: "2026-08-08",
+    previewVideo:
+      "https://pub-a50e7f4ea75a4970a1738e50d53b6eb1.r2.dev/preview-videos/component-animations/hovertransition.webm",
   },
   "mac-keyboard": {
     title: "Mac Keyboard",
@@ -250,6 +252,8 @@ export const components: Record<string, ComponentMetadata> = {
     category: "Components",
     slug: "wheel-carousel",
     addedAt: "2026-08-10",
+    previewVideo:
+      "https://pub-a50e7f4ea75a4970a1738e50d53b6eb1.r2.dev/preview-videos/component-animations/wheelcarousel.webm",
   },
   "spiral-3d-slider": {
     title: "Spiral 3D Slider",
@@ -383,6 +387,8 @@ export const components: Record<string, ComponentMetadata> = {
     category: "ASCII Effects",
     slug: "ascii-effect",
     addedAt: "2026-07-21",
+    previewVideo:
+      "https://pub-a50e7f4ea75a4970a1738e50d53b6eb1.r2.dev/preview-videos/ascii-effects/asciieffect.webm",
   },
   // Visual Effects
   "image-trail": {
