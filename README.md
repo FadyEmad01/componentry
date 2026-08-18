@@ -167,19 +167,19 @@ See [LICENSE](./LICENSE) for more information.
 - Powered by [Vercel](https://vercel.com/)
 
 <p align="center">
-  <a href="https://star-history.com/#harshjdhv/componentry&Date">
+  <a href="https://star-history.dera.page/#harshjdhv/componentry&Date">
     <picture>
       <source
         media="(prefers-color-scheme: dark)"
-        srcset="https://api.star-history.com/svg?repos=harshjdhv/componentry&type=Date&theme=dark&legend=top-left"
+        srcset="https://star-history.dera.page/svg?repos=harshjdhv/componentry&type=Date&theme=dark&legend=top-left"
       />
       <source
         media="(prefers-color-scheme: light)"
-        srcset="https://api.star-history.com/svg?repos=harshjdhv/componentry&type=Date&legend=top-left"
+        srcset="https://star-history.dera.page/svg?repos=harshjdhv/componentry&type=Date&legend=top-left"
       />
       <img
         alt="Star History Chart"
-        src="https://api.star-history.com/svg?repos=harshjdhv/componentry&type=Date&legend=top-left"
+        src="https://star-history.dera.page/svg?repos=harshjdhv/componentry&type=Date&legend=top-left"
       />
     </picture>
   </a>
