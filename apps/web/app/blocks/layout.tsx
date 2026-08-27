@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import { BlocksNav } from "@/components/blocks/blocks-nav";
 import {
   LandingGuideLines,
   landingGutterClass,
@@ -34,7 +33,6 @@ export default function BlocksLayout({
             landingGutterClass,
           )}
         >
-          <BlocksNav />
           <div className="relative overflow-x-clip">{children}</div>
         </div>
       </main>
