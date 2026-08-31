@@ -150,17 +150,27 @@ export function Footer() {
         </LandingContent>
       </div>
 
-      {/* Massive Half-Cut Text */}
-      <div
-        className="pointer-events-none mt-8 flex h-[10.5vw] w-full select-none justify-center overflow-hidden"
-        style={{
-          maskImage:
-            "linear-gradient(to bottom, transparent 0%, black 32%, black 72%, transparent 100%)",
-        }}
-      >
-        <h1 className="translate-y-[30%] text-[10.5vw] font-black leading-[0.7] tracking-tighter text-zinc-950/[0.028] dark:text-white/[0.035]">
-          COMPONENTRY
-        </h1>
+      {/* Half-cut footer wordmark */}
+      <div className="pointer-events-none mt-8 flex w-full select-none justify-center overflow-hidden text-[#E5E5E5]">
+        <svg
+          viewBox="0 0 1440 136"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          className="h-auto w-full font-sans"
+        >
+          <text
+            x="720"
+            y="207"
+            fill="currentColor"
+            fontSize="260"
+            fontWeight="700"
+            letterSpacing="-10"
+            textAnchor="middle"
+          >
+            componentry
+          </text>
+        </svg>
       </div>
     </footer>
   )

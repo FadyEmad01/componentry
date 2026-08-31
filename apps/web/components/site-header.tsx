@@ -15,6 +15,8 @@ interface SiteHeaderProps {
     landingGutter?: boolean
 }
 
+const LAST_KNOWN_GITHUB_STARS = 465
+
 function GitHubIcon(props: React.SVGProps<SVGSVGElement>) {
     return (
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
@@ -23,14 +25,42 @@ function GitHubIcon(props: React.SVGProps<SVGSVGElement>) {
     )
 }
 
-export function SiteHeader({ sidebarToggle }: SiteHeaderProps) {
+export function SiteHeader({ sidebarToggle, landingGutter }: SiteHeaderProps) {
     const pathname = usePathname()
-    const [stars, setStars] = React.useState<number | null>(null)
+    const [stars, setStars] = React.useState<number | null>(LAST_KNOWN_GITHUB_STARS)
     const [mobileNavOpen, setMobileNavOpen] = React.useState(false)
+    const [isScrolled, setIsScrolled] = React.useState(false)
 
     React.useEffect(() => {
         setMobileNavOpen(false)
     }, [pathname])
+
+    React.useLayoutEffect(() => {
+        try {
+            const cached = localStorage.getItem("github-stars-cache")
+            if (!cached) return
+
+            const { count } = JSON.parse(cached) as { count?: unknown }
+            if (typeof count === "number") {
+                setStars(count)
+            }
+        } catch {
+            // The regular fetch below remains the fallback.
+        }
+    }, [])
+
+    React.useEffect(() => {
+        const updateScrolledState = () => {
+            setIsScrolled(window.scrollY > 8)
+        }
+
+        updateScrolledState()
+        window.addEventListener("scroll", updateScrolledState, { passive: true })
+
+        return () => {
+            window.removeEventListener("scroll", updateScrolledState)
+        }
+    }, [])
 
     React.useEffect(() => {
         const fetchStars = async () => {
@@ -107,7 +137,16 @@ export function SiteHeader({ sidebarToggle }: SiteHeaderProps) {
     ]
 
     return (
-        <header className="fixed top-0 left-0 right-0 z-50 w-full border-b border-line bg-white dark:bg-background">
+        <header
+            className={cn(
+                "fixed top-0 left-0 right-0 z-50 w-full transition-[background-color,border-color] duration-200",
+                landingGutter
+                    ? isScrolled
+                        ? "border-b border-white/[0.06] bg-[#0a0a0a]"
+                        : "border-b border-transparent bg-transparent"
+                    : "border-b border-line bg-white dark:bg-background"
+            )}
+        >
             <div
                 className={cn(
                     "h-14 w-full",
@@ -174,11 +213,13 @@ export function SiteHeader({ sidebarToggle }: SiteHeaderProps) {
                             className="group inline-flex h-8 items-center justify-center gap-1 rounded-md px-1.5 text-sm text-foreground/80 transition-colors hover:bg-muted hover:text-foreground dark:hover:bg-muted/50"
                         >
                             <GitHubIcon className="size-4 transition-opacity group-hover:opacity-100" />
-                            {formattedStars && (
-                                <span className="hidden tabular-nums leading-none sm:inline" style={{ textBox: "trim-end cap alphabetic" }}>
-                                    {formattedStars}
-                                </span>
-                            )}
+                            <span
+                                aria-hidden={stars === null}
+                                className="hidden w-[3ch] text-right tabular-nums leading-none sm:inline-block"
+                                style={{ textBox: "trim-end cap alphabetic" }}
+                            >
+                                {formattedStars ?? LAST_KNOWN_GITHUB_STARS}
+                            </span>
                             <span className="sr-only">GitHub</span>
                         </Link>
                         <div className="hidden h-4 w-px bg-foreground/15 dark:bg-foreground/20 sm:block" />

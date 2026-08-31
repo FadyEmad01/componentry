@@ -4,11 +4,10 @@ import React from "react";
 import { motion } from "framer-motion";
 import { SiteHeader } from "@/components/site-header";
 import { HeroButtons } from "@/components/landing/hero-buttons";
+import { HeroAtmosphere } from "@/components/landing/hero-atmosphere";
 import {
   LandingContent,
-  LandingDivider,
   LandingGutter,
-  LandingGuideLines,
 } from "@/components/landing/landing-frame";
 import { ResponsiveMagnetLines } from "@/components/landing/responsive-magnet-lines";
 import { Testimonials } from "@/components/landing/testimonials";
@@ -52,9 +51,9 @@ export default function Home() {
   return (
     <div
       data-route-home
-      className="relative min-h-screen w-full overflow-x-hidden bg-white dark:bg-background text-foreground transition-colors duration-300 selection:bg-zinc-200 dark:selection:bg-zinc-800"
+      className="relative min-h-screen w-full overflow-x-hidden text-foreground selection:bg-zinc-200 dark:selection:bg-zinc-800"
     >
-      <LandingGuideLines />
+      <HeroAtmosphere />
       <SiteHeader landingGutter />
 
       <main className="relative z-10 flex min-h-screen min-w-0 flex-col justify-start overflow-x-clip pt-36 pb-32 sm:pt-44 lg:pt-48">
@@ -62,10 +61,10 @@ export default function Home() {
           <LandingContent className="pb-0">
             <section className="relative z-10 mx-auto flex max-w-5xl flex-col items-center text-center">
               <motion.div
-                initial={{ opacity: 0, y: 15, filter: "blur(4px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 transition={{
-                  duration: 0.6,
+                  duration: 0.4,
                   delay: 0.1,
                   ease: [0.23, 1, 0.32, 1],
                 }}
@@ -74,7 +73,7 @@ export default function Home() {
                   href="https://vercel.com/open-source-program"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white/40 dark:bg-zinc-900/30 px-2.5 py-1 text-[11px] sm:text-xs font-medium text-zinc-700 dark:text-zinc-300 backdrop-blur-xl shadow-panel transition-colors hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-950/[0.08] px-3 py-1 text-[11px] font-medium text-zinc-600 dark:border-white/[0.08] dark:text-zinc-400 sm:text-xs"
                 >
                   Backed by
                   <svg
@@ -326,15 +325,12 @@ export default function Home() {
               </motion.div>
             </motion.div>
           </LandingContent>
-
-          <LandingDivider />
         </LandingGutter>
       </main>
 
       <LandingGutter>
         <Testimonials />
         <CustomWorkCta />
-        <LandingDivider />
       </LandingGutter>
 
       <Footer />

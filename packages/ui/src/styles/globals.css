@@ -72,7 +72,7 @@
 }
 
 .dark {
-  --background: #121212;
+  --background: #0a0a0a;
   --foreground: oklch(0.985 0 0);
   --card: #121212;
   --card-foreground: oklch(0.985 0 0);
@@ -252,6 +252,19 @@
 }
 
 @layer base {
+  html:not(.light),
+  html:not(.light) body {
+    background-color: #0a0a0a;
+  }
+
+  [data-route-home] {
+    background-color: #0a0a0a;
+  }
+
+  .light [data-route-home] {
+    background-color: #ffffff;
+  }
+
   * {
     @apply border-border outline-ring/50;
   }

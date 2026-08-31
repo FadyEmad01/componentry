@@ -167,7 +167,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>): React.JSX.Element {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      style={{ backgroundColor: "#0a0a0a", colorScheme: "dark" }}
+    >
       <Analytics />
       <head>
         <JsonLd />
