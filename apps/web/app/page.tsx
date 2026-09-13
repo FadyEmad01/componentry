@@ -21,7 +21,7 @@ import { Footer } from "@/components/footer";
 // Componentry Previews for Bento
 import { MatrixRain } from "@workspace/ui/components/matrix-rain";
 import { ScrollBasedVelocity } from "@workspace/ui/components/scroll-based-velocity";
-import { AnimatedGradient } from "@workspace/ui/components/animated-gradient";
+import { EyeTracking } from "@workspace/ui/components/eye-tracking";
 import { DitherGradient } from "@workspace/ui/components/dither-gradient";
 import {
   MagneticDock,
@@ -214,7 +214,7 @@ export default function Home() {
                 </div>
               </motion.div>
 
-              {/* Card 6: 1x1 Dark */}
+              {/* Card 6: 1x1 Eye tracking */}
               <motion.div
                 variants={cardVariants}
                 className={`md:col-span-1 md:row-span-1 ${showcaseCardClass}`}
@@ -222,12 +222,13 @@ export default function Home() {
                 <div
                   className={`${showcasePreviewClass} flex flex-col items-center justify-center p-0`}
                 >
-                  <div className="relative h-full w-full overflow-hidden rounded-[10px]">
-                    <AnimatedGradient config={{ preset: "Aurora" }} />
-                  </div>
+                  <EyeTracking eyeSize={78} gap={22} variant="realistic" />
                 </div>
-                <div className={showcaseLabelClass}>
-                  Animated gradient
+                <div className="flex shrink-0 items-center justify-between gap-2 px-2.5 pb-1 pt-2 text-[13px] font-medium leading-5 text-zinc-700 dark:text-zinc-400">
+                  Eye tracking
+                  <span className="hidden shrink-0 font-mono text-xs tracking-wider text-zinc-400 opacity-60 sm:inline">
+                    [ move cursor ]
+                  </span>
                 </div>
               </motion.div>
 
