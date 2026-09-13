@@ -10,6 +10,10 @@ const docsImportMap: Record<
     | { [key: string]: React.ComponentType<Record<string, unknown>> }
   >
 > = {
+  "annotated-text": () =>
+    import("@/components/docs/annotated-text").then((m) => ({
+      default: m.AnnotatedTextDocs,
+    })),
   "ascii-effect": () =>
     import("@/components/docs/ascii-effect").then((m) => ({
       default: m.AsciiEffectDocs,
