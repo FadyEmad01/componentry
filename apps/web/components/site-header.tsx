@@ -170,22 +170,6 @@ export function SiteHeader({ sidebarToggle, landingGutter }: SiteHeaderProps) {
                     </nav>
                 </div>
                 <div className="ml-auto flex items-center gap-1">
-                    <Link
-                        href="https://shadcnblocks.com/?utm_source=componentry&utm_medium=sponsor&utm_campaign=header_badge"
-                        target="_blank"
-                        data-umami-event="click-sponsor-shadcnblocks"
-                        className="hidden h-8 items-center gap-1.5 rounded-md border border-input/50 bg-muted/30 pl-2 pr-2.5 text-sm font-normal transition-colors hover:border-input hover:bg-accent/50 lg:inline-flex"
-                    >
-                        <span className="text-[10px] font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400">Sponsor</span>
-                        <span className="w-px h-4 bg-border/40" />
-                        <img
-                            src="https://cdn.shadcnblocks.com/shadcnblocks/images/logo/shadcnblocks-logo.svg"
-                            className="w-4 dark:invert"
-                            alt="Shadcnblocks Logo"
-                        />
-                        <span className="text-foreground/80 hover:text-foreground">Shadcnblocks.com</span>
-                    </Link>
-                    <div className="hidden h-4 w-px bg-foreground/15 dark:bg-foreground/20 md:block" />
                     <CommandMenu />
                     <div className="hidden h-4 w-px bg-foreground/15 dark:bg-foreground/20 sm:block" />
                     <div className="flex items-center gap-1">

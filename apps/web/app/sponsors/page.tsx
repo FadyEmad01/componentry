@@ -23,13 +23,13 @@ const sponsorStats = [
   { value: "60+", label: "Free components" },
 ]
 
-const sponsorWall = [
-  {
-    name: "Shadcnblocks.com",
-    logo: "/images/sponsors/shadcnblocks.svg",
-    href: "https://shadcnblocks.com/?utm_source=componentry&utm_medium=sponsor&utm_campaign=sponsors_page",
-    boardClassName: "md:col-span-3",
-  },
+const sponsorWall: {
+  name: string
+  logo?: string
+  href?: string
+  boardClassName: string
+}[] = [
+  { name: "Main", boardClassName: "md:col-span-3" },
   { name: "Main", boardClassName: "md:col-span-3" },
   { name: "Supporter", boardClassName: "md:col-span-3" },
   { name: "Supporter", boardClassName: "md:col-span-3" },
