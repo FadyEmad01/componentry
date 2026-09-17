@@ -224,7 +224,11 @@ export function FloatingDocsSidebarPanel() {
                 exit={{ opacity: 0, scale: 0.98 }}
                 transition={{ duration: 0.08, ease: "easeOut" }}
                 className="pointer-events-none fixed z-[70] w-56"
-                style={{ translate: `${hoverPosition.x - 14}px ${hoverPosition.y - 10}px` }}
+                style={{ 
+                  left: 0,
+                  top: 0,
+                  translate: `${hoverPosition.x}px ${hoverPosition.y}px`
+                }}
               >
                 <div className="overflow-hidden rounded-xl border border-zinc-200/70 bg-white/95 shadow-2xl backdrop-blur-md dark:border-zinc-800/70 dark:bg-zinc-900/95">
                   <div className="relative h-32 w-full bg-zinc-100 dark:bg-zinc-800/60">
