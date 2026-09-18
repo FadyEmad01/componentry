@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePlaygroundStore } from "@/hooks/use-playground-store";
 import { CopyButton } from "@/components/copy-button";
+import { ensureImportSpacing } from "@/lib/split-import";
 
 interface LiveCodeBlockProps {
     defaultCode: string;
@@ -10,20 +11,21 @@ interface LiveCodeBlockProps {
 }
 
 export function LiveCodeBlock({ defaultCode, lang = "tsx" }: LiveCodeBlockProps) {
+    const spacedDefault = ensureImportSpacing(defaultCode);
     const { code } = usePlaygroundStore();
-    const [displayCode, setDisplayCode] = useState(defaultCode);
+    const [displayCode, setDisplayCode] = useState(spacedDefault);
     const [html, setHtml] = useState("");
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
         // Initialize store with default if empty
-        usePlaygroundStore.getState().setCode(defaultCode);
-    }, [defaultCode]);
+        usePlaygroundStore.getState().setCode(spacedDefault);
+    }, [spacedDefault]);
 
     useEffect(() => {
         if (code) {
-            setDisplayCode(code);
+            setDisplayCode(ensureImportSpacing(code));
         }
     }, [code]);
 
@@ -51,19 +53,19 @@ export function LiveCodeBlock({ defaultCode, lang = "tsx" }: LiveCodeBlockProps)
 
     if (!isMounted) {
         return (
-            <div className="relative text-sm w-full border border-border overflow-hidden bg-zinc-100 dark:bg-zinc-900/50 rounded-xl min-h-[200px]">
+            <div className="relative text-sm w-full overflow-hidden rounded-xl bg-zinc-100/70 dark:bg-white/[0.035] min-h-[200px]">
                 <div className="h-full flex items-center justify-center p-4">
-                    <pre className="text-muted-foreground w-full overflow-x-auto"><code>{defaultCode}</code></pre>
+                    <pre className="text-muted-foreground w-full overflow-x-auto whitespace-pre"><code>{spacedDefault}</code></pre>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="relative text-sm w-full border border-border overflow-hidden bg-zinc-100 dark:bg-zinc-900/50 rounded-xl min-h-[200px] flex flex-col" data-code-block>
+        <div className="relative text-sm w-full overflow-hidden rounded-xl bg-zinc-100/70 dark:bg-white/[0.035] min-h-[200px] flex flex-col" data-code-block>
             <CopyButton code={displayCode.trim()} />
             <div
-                className="flex-1 min-h-[200px] [&_pre]:p-4 [&_pre]:overflow-x-auto [&_pre]:!overflow-y-hidden overflow-auto"
+                className="flex-1 min-h-[200px] [&_pre]:p-4 [&_pre]:pr-12 [&_pre]:overflow-x-auto [&_pre]:!overflow-y-hidden [&_pre]:whitespace-pre [&_.shiki_[data-line]]:min-h-[1.25em] overflow-auto"
                 dangerouslySetInnerHTML={{ __html: html || `<pre><code>${displayCode.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>` }}
             />
         </div>

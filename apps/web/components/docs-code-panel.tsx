@@ -1,9 +1,13 @@
 "use client"
 
 import * as React from "react"
-import type { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CopyButton } from "@/components/copy-button"
+import {
+  Tabs,
+  TabsList,
+  TabsTab,
+} from "@workspace/ui/components/tabs"
 
 export interface DocsCodePanelTab {
   id: string
@@ -11,83 +15,78 @@ export interface DocsCodePanelTab {
 }
 
 interface DocsCodePanelProps {
-  icon: LucideIcon
+  /** Kept for call-site compatibility; chrome icon is no longer rendered. */
+  icon?: React.ComponentType<{ className?: string }>
   copyCode: string
   copyEventName?: "content_copied" | "component_install_command_copied"
   tabs?: DocsCodePanelTab[]
   activeTab?: string
   onTabChange?: (id: string) => void
   tabListAriaLabel?: string
+  /** Skip the outer surface — for nesting inside a shared usage panel. */
+  bare?: boolean
   children: React.ReactNode
   className?: string
 }
 
+const surfaceClass =
+  "not-prose relative overflow-hidden rounded-xl bg-zinc-100/70 text-sm text-zinc-950 dark:bg-white/[0.035] dark:text-zinc-50"
+
 export function DocsCodePanel({
-  icon: Icon,
   copyCode,
   copyEventName,
   tabs,
   activeTab,
   onTabChange,
   tabListAriaLabel = "Options",
+  bare = false,
   children,
   className,
 }: DocsCodePanelProps) {
-  const hasTabs = tabs && tabs.length > 0
+  const hasTabs = Boolean(tabs && tabs.length > 0)
 
-  return (
+  const body = (
     <div
       data-code-block
       data-line-numbers="false"
-      className={cn(
-        "not-prose relative flex w-full max-w-full flex-col overflow-clip rounded-lg border border-neutral-200 bg-neutral-200/40 text-sm text-neutral-950 shadow-xs dark:border-neutral-800 dark:bg-[#222222] dark:text-neutral-50",
-        className
-      )}
+      className={cn(bare ? "relative" : surfaceClass, !bare && className)}
     >
-      <div className="not-prose flex h-9 items-center justify-between gap-3 px-2 py-1.5 text-sm text-neutral-600 dark:text-neutral-400">
-        <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto no-scrollbar">
-          <Icon className="size-4 shrink-0" aria-hidden />
+      <CopyButton
+        code={copyCode}
+        eventName={copyEventName}
+        absolute
+        className="top-1 right-1"
+      />
+      <div className="relative min-w-0">{children}</div>
+    </div>
+  )
 
-          {hasTabs && (
-            <div
-              role="tablist"
+  if (bare) {
+    return body
+  }
+
+  return (
+    <div className={cn(hasTabs && "space-y-3", className)}>
+      {hasTabs && (
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => {
+            if (value) onTabChange?.(value)
+          }}
+        >
+          <TabsList
+              size="sm"
               aria-label={tabListAriaLabel}
-              className="flex items-center gap-1"
             >
-              {tabs.map((tab) => {
-                const isSelected = activeTab === tab.id
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={isSelected}
-                    onClick={() => onTabChange?.(tab.id)}
-                    className={cn(
-                      "shrink-0 rounded-md px-2 py-0.5 text-sm font-normal outline-none transition-colors",
-                      "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-                      isSelected
-                        ? "text-neutral-950 dark:text-neutral-50"
-                        : "text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-neutral-50"
-                    )}
-                  >
-                    {tab.label}
-                  </button>
-                )
-              })}
-            </div>
-          )}
-        </div>
-
-        <CopyButton
-          code={copyCode}
-          eventName={copyEventName}
-          absolute={false}
-          className="shrink-0 p-1.5"
-        />
-      </div>
-
-      <div className="relative">{children}</div>
+            {tabs!.map((tab) => (
+              <TabsTab key={tab.id} value={tab.id}>
+                {tab.label}
+              </TabsTab>
+            ))}
+          </TabsList>
+        </Tabs>
+      )}
+      {body}
     </div>
   )
 }

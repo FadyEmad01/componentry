@@ -18,7 +18,7 @@ export async function BlockDisplay({ name }: { name: string }) {
     item.files.map(async (file) => ({
       ...file,
       highlightedContent: await highlightCode(file.content ?? "", "tsx", {
-        darkTheme: "dark-plus",
+        darkTheme: "min-dark",
       }),
     })),
   );

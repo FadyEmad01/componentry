@@ -6,9 +6,7 @@ import { ArrowUpRight, Check, Plus } from "lucide-react"
 import { Footer } from "@/components/footer"
 import {
   LandingContent,
-  LandingDivider,
   LandingGutter,
-  LandingGuideLines,
 } from "@/components/landing/landing-frame"
 import { SiteHeader } from "@/components/site-header"
 import { cn } from "@/lib/utils"
@@ -108,7 +106,6 @@ function SponsorCta({
 export default function SponsorsPage() {
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden bg-white text-foreground selection:bg-zinc-200 dark:bg-background dark:selection:bg-zinc-800">
-      <LandingGuideLines />
       <SiteHeader landingGutter />
 
       <main className="relative z-10 flex min-h-screen min-w-0 flex-col justify-start overflow-x-clip pt-28 pb-20 sm:pt-32">
@@ -349,7 +346,6 @@ export default function SponsorsPage() {
             </section>
           </LandingContent>
 
-          <LandingDivider />
 
           <LandingContent>
             <section className="grid gap-6 py-12 md:grid-cols-12 md:items-center">

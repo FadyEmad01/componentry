@@ -1,5 +1,6 @@
 import React from "react"
 import { CircuitBoard } from "@workspace/ui/components/circuit-board"
+import { CircuitBoardPreview } from "@/components/docs/previews/circuit-board-preview"
 import { DocsPageLayout } from "@/components/docs-page-layout"
 import { readComponentSource } from "@/lib/source-code"
 import { Cloud, Server, Shield, Database, Globe, GitBranch, Cpu, HardDrive, Wifi } from "lucide-react"
@@ -92,7 +93,7 @@ export async function CircuitBoardDocs() {
             title="Circuit Board"
             description="Animated circuit board visualization with nodes and connections. Perfect for tech diagrams and flow visualizations."
             preview={
-                <div className="flex items-center justify-center w-full overflow-hidden p-4">
+                <CircuitBoardPreview width={500} height={300}>
                     <CircuitBoard
                         nodes={[
                             { id: "start", x: 80, y: 150, label: "Cloud", icon: <Cloud className="w-4 h-4" /> },
@@ -109,7 +110,7 @@ export async function CircuitBoardDocs() {
                         width={500}
                         height={300}
                     />
-                </div>
+                </CircuitBoardPreview>
             }
             previewCode={simpleFlowCode}
             installPackageName="circuit-board"
@@ -120,7 +121,7 @@ export async function CircuitBoardDocs() {
                 {
                     title: "Simple Flow",
                     preview: (
-                        <div className="flex items-center justify-center p-4">
+                        <CircuitBoardPreview width={500} height={300}>
                             <CircuitBoard
                                 nodes={[
                                     { id: "start", x: 80, y: 150, label: "Cloud", icon: <Cloud className="w-4 h-4" /> },
@@ -137,14 +138,14 @@ export async function CircuitBoardDocs() {
                                 width={500}
                                 height={300}
                             />
-                        </div>
+                        </CircuitBoardPreview>
                     ),
                     code: simpleFlowCode,
                 },
                 {
                     title: "Load Balancer",
                     preview: (
-                        <div className="flex items-center justify-center p-4">
+                        <CircuitBoardPreview width={480} height={300}>
                             <CircuitBoard
                                 nodes={[
                                     { id: "user", x: 60, y: 150, label: "User", icon: <Globe className="w-4 h-4" /> },
@@ -163,14 +164,14 @@ export async function CircuitBoardDocs() {
                                 width={480}
                                 height={300}
                             />
-                        </div>
+                        </CircuitBoardPreview>
                     ),
                     code: loadBalancerCode,
                 },
                 {
                     title: "Bidirectional",
                     preview: (
-                        <div className="flex items-center justify-center p-4">
+                        <CircuitBoardPreview width={500} height={200}>
                             <CircuitBoard
                                 nodes={[
                                     { id: "cpu", x: 100, y: 100, label: "CPU", icon: <Cpu className="w-4 h-4" /> },
@@ -185,14 +186,14 @@ export async function CircuitBoardDocs() {
                                 height={200}
                                 showGrid={false}
                             />
-                        </div>
+                        </CircuitBoardPreview>
                     ),
                     code: bidirectionalCode,
                 },
                 {
                     title: "Network Topology",
                     preview: (
-                        <div className="flex items-center justify-center p-4">
+                        <CircuitBoardPreview width={480} height={300}>
                             <CircuitBoard
                                 nodes={[
                                     { id: "router", x: 240, y: 100, label: "Router", icon: <Wifi className="w-4 h-4" /> },
@@ -209,7 +210,7 @@ export async function CircuitBoardDocs() {
                                 height={300}
                                 pulseSpeed={1.5}
                             />
-                        </div>
+                        </CircuitBoardPreview>
                     ),
                     code: networkCode,
                 },

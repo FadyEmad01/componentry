@@ -92,11 +92,11 @@ function DocsPageSkeleton() {
         <div className="flex flex-col lg:flex-row w-full h-full min-h-screen lg:h-screen bg-white dark:bg-background overflow-hidden">
             {/* Left Column: Scrollable Content Skeleton */}
             <div className="w-full lg:basis-1/2 lg:max-w-1/2 h-full flex flex-col relative z-20 bg-white dark:bg-background">
-                {/* Gradients */}
-                <div className="absolute top-0 left-0 right-0 z-30 h-32 bg-gradient-to-b from-white via-white/95 to-transparent dark:from-background dark:via-background/95 pointer-events-none backdrop-blur-[1px]" />
+                <div className="pointer-events-none absolute inset-x-0 top-0 z-30 hidden h-[150px] select-none bg-[linear-gradient(to_top,transparent,#ffffff)] backdrop-blur-[4px] [mask-image:linear-gradient(to_bottom,#000_50%,transparent)] [-webkit-mask-image:linear-gradient(to_bottom,#000_50%,transparent)] lg:block dark:bg-[linear-gradient(to_top,transparent,var(--background))]" />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 h-[150px] select-none bg-[linear-gradient(to_bottom,transparent,#ffffff)] backdrop-blur-[4px] [mask-image:linear-gradient(to_top,#000_50%,transparent)] [-webkit-mask-image:linear-gradient(to_top,#000_50%,transparent)] dark:bg-[linear-gradient(to_bottom,transparent,var(--background))]" />
 
                 <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                    <div className="px-8 lg:px-16 pt-32 lg:pt-48 pb-40 space-y-20 max-w-3xl mx-auto w-full animate-pulse">
+                    <div className="w-full animate-pulse space-y-20 px-6 pt-32 pb-40 sm:px-8 lg:px-8 lg:pt-48 xl:px-10">
 
                         {/* Header Section */}
                         <div className="space-y-10">

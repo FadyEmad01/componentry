@@ -3,7 +3,6 @@
 import { registryNamespace, registryUrl } from "@/lib/install-command"
 import { SiteHeader } from "@/components/site-header"
 import { DocsScrollEdgeFade } from "@/components/docs-scroll-edge-fade"
-import { LandingGuideLines } from "@/components/landing/landing-frame"
 import { CodeInline, Section } from "@/components/component-layout"
 import { CopyButton } from "@/components/copy-button"
 import {
@@ -42,7 +41,6 @@ export default function McpDocsPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-background text-zinc-900 dark:text-zinc-100 font-sans overflow-x-hidden">
-      <LandingGuideLines />
       <DocsScrollEdgeFade position="bottom" />
 
       <SiteHeader />

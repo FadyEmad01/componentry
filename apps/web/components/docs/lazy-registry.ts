@@ -10,6 +10,10 @@ const docsImportMap: Record<
     | { [key: string]: React.ComponentType<Record<string, unknown>> }
   >
 > = {
+  "grain-gradient": () =>
+    import("@/components/docs/grain-gradient").then((m) => ({
+      default: m.GrainGradientDocs,
+    })),
   "annotated-text": () =>
     import("@/components/docs/annotated-text").then((m) => ({
       default: m.AnnotatedTextDocs,

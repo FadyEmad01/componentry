@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { Code2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DocsCodePanel } from "@/components/docs-code-panel"
 import { useDocStore } from "@/hooks/use-doc-store"
@@ -14,6 +13,10 @@ interface DynamicCodeBlockProps {
   variantCodes?: string[]
   variantTitles?: string[]
   hideDefaultTab?: boolean
+  /** Show variant tabs in the docs column. Default false — preview dock owns switching. */
+  showTabs?: boolean
+  /** Nest inside a shared usage surface. */
+  bare?: boolean
 }
 
 async function fetchHighlightedTsx(code: string): Promise<string> {
@@ -38,6 +41,8 @@ export function DynamicCodeBlock({
   variantCodes = [],
   variantTitles = [],
   hideDefaultTab = false,
+  showTabs = false,
+  bare = false,
 }: DynamicCodeBlockProps) {
   const { activeVariantIndex, setActiveVariantIndex } = useDocStore()
   const [variantHtmlMap, setVariantHtmlMap] = React.useState<Record<number, string>>({})
@@ -56,11 +61,6 @@ export function DynamicCodeBlock({
     })
     return items
   }, [hideDefaultTab, variantTitles])
-
-  const activeTab = React.useMemo(() => {
-    if (activeVariantIndex === -1) return hideDefaultTab ? tabs[0]?.id ?? "default" : "default"
-    return String(activeVariantIndex)
-  }, [activeVariantIndex, hideDefaultTab, tabs])
 
   const targetHtml =
     activeVariantIndex === -1 ? defaultHtml : variantHtmlMap[activeVariantIndex]
@@ -154,14 +154,21 @@ export function DynamicCodeBlock({
   const isLoadingActiveVariant =
     activeVariantIndex >= 0 && !variantHtmlMap[activeVariantIndex]
 
+  const activeTab =
+    activeVariantIndex === -1
+      ? hideDefaultTab
+        ? tabs[0]?.id ?? "default"
+        : "default"
+      : String(activeVariantIndex)
+
   return (
     <DocsCodePanel
-      icon={Code2}
       copyCode={rawCodeToUse.trim()}
-      tabs={tabs.length > 1 ? tabs : undefined}
+      tabs={showTabs && tabs.length > 1 ? tabs : undefined}
       activeTab={activeTab}
       onTabChange={handleTabChange}
       tabListAriaLabel="Example variant"
+      bare={bare}
       className={className}
     >
       <div
@@ -169,7 +176,6 @@ export function DynamicCodeBlock({
         style={resolvedWrapperStyle}
         className={cn(
           wrapperProps.className,
-          "rounded-lg bg-white dark:!bg-[#121212]",
           className?.includes("h-full") && "h-full"
         )}
       >
@@ -184,7 +190,7 @@ export function DynamicCodeBlock({
           )}
         >
           <div
-            className="[&_.shiki]:!bg-transparent [&_pre]:!bg-transparent [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:p-4"
+            className="[&_.shiki]:!bg-transparent [&_pre]:!bg-transparent [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:p-4 [&_pre]:pr-12 [&_.shiki_[data-line]]:min-h-[1.25em]"
             dangerouslySetInnerHTML={{ __html: visibleHtml }}
           />
         </div>

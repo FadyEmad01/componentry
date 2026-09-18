@@ -9,7 +9,6 @@ import { components, isNewComponent, type ComponentCategory, type ComponentMetad
 import { SiteHeader } from "@/components/site-header"
 import { DocsScrollEdgeFade } from "@/components/docs-scroll-edge-fade"
 import {
-  LandingGuideLines,
   landingGutterClass,
 } from "@/components/landing/landing-frame"
 import { cn } from "@/lib/utils"
@@ -290,46 +289,6 @@ const categoryOrder: ComponentCategory[] = [
 // ─── Main Docs Page ─────────────────────────────────────────────────────────
 export default function DocsPage() {
   const allComponents = Object.values(components)
-  const [activeSection, setActiveSection] = useState<string>("")
-
-  useEffect(() => {
-    const observers = categoryOrder.map((cat) => {
-      const id = cat.toLowerCase().replace(/\s+/g, "-")
-      const element = document.getElementById(id)
-      if (!element) return null
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (entries[0]?.isIntersecting) {
-            setActiveSection(cat)
-          }
-        },
-        { rootMargin: "-20% 0px -50% 0px" } // Trigger when section is near center/top
-      )
-      observer.observe(element)
-      return observer
-    })
-
-    return () => {
-      observers.forEach((observer) => observer?.disconnect())
-    }
-  }, [])
-
-  // Scroll active nav item into view
-  useEffect(() => {
-    if (activeSection) {
-      const id = `nav-item-${activeSection}`
-      const element = document.getElementById(id)
-      if (element) {
-        element.scrollIntoView({
-          behavior: "smooth",
-          block: "nearest",
-          inline: "center",
-        })
-      }
-    }
-  }, [activeSection])
-
   const grouped = categoryOrder
     .map(cat => ({
       category: cat,
@@ -339,45 +298,10 @@ export default function DocsPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-background text-zinc-900 dark:text-zinc-100 font-sans overflow-x-hidden">
-      <LandingGuideLines />
       <DocsScrollEdgeFade position="bottom" />
 
       {/* ── Top Floating Header ── */}
       <SiteHeader />
-
-      {/* ── Floating Dock Nav ── */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-[calc(100vw-2rem)] sm:max-w-fit pointer-events-none">
-        <nav className="flex items-center gap-1 p-1.5 rounded-2xl border border-border bg-white/80 dark:bg-[#121212] backdrop-blur-xl shadow-card pointer-events-auto overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          {categoryOrder.map((cat) => {
-            const isActive = activeSection === cat
-            return (
-              <a
-                key={cat}
-                id={`nav-item-${cat}`}
-                href={`#${cat.toLowerCase().replace(/\s+/g, '-')}`}
-                onClick={(e) => {
-                  e.preventDefault()
-                  document.getElementById(cat.toLowerCase().replace(/\s+/g, '-'))?.scrollIntoView({ behavior: 'smooth' })
-                  setActiveSection(cat)
-                }}
-                className={`relative px-4 py-2 text-[13px] font-medium transition-all duration-300 rounded-lg whitespace-nowrap flex-shrink-0 ${isActive
-                  ? "text-zinc-900 dark:text-zinc-100"
-                  : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50"
-                  }`}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="activeSection"
-                    className="absolute inset-0 rounded-lg bg-secondary shadow-panel"
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  />
-                )}
-                <span className="relative z-10">{cat}</span>
-              </a>
-            )
-          })}
-        </nav>
-      </div>
 
       <main className={cn("relative z-10 pt-32 pb-32", landingGutterClass)}>
         <div className="mx-auto w-full max-w-[1360px]">

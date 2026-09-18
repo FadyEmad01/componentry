@@ -10,7 +10,7 @@ let highlighterPromise: Promise<Highlighter> | null = null;
 
 // Pre-load only the languages we actually use
 const LANGS: BundledLanguage[] = ["tsx", "typescript", "bash", "json"];
-const THEMES: BundledTheme[] = ["github-light", "github-dark", "dark-plus"];
+const THEMES: BundledTheme[] = ["min-light", "min-dark", "dark-plus"];
 
 /**
  * Get or create a cached Shiki highlighter instance.
@@ -46,9 +46,9 @@ export async function highlightCode(
     darkTheme?: BundledTheme;
   } = {},
 ): Promise<string> {
-  const lightTheme = options.lightTheme ?? "github-light";
-  const darkTheme = options.darkTheme ?? "github-dark";
-  const cacheKey = `${lang}:${lightTheme}:${darkTheme}:${code}`;
+  const lightTheme = options.lightTheme ?? "min-light";
+  const darkTheme = options.darkTheme ?? "min-dark";
+  const cacheKey = `v7:${lang}:${lightTheme}:${darkTheme}:${code}`;
 
   const cached = htmlCache.get(cacheKey);
   if (cached) {
@@ -72,6 +72,25 @@ export async function highlightCode(
         },
         line(node, line) {
           node.properties["data-line"] = line;
+          // Empty lines collapse to 0 height in CSS grid — keep a gap after imports etc.
+          const isEmpty =
+            !node.children?.length ||
+            node.children.every(
+              (child) =>
+                child.type === "text" &&
+                (!(child as { value?: string }).value ||
+                  (child as { value?: string }).value === "\n"),
+            );
+          if (isEmpty) {
+            node.children = [
+              {
+                type: "element",
+                tagName: "span",
+                properties: {},
+                children: [{ type: "text", value: "\u00A0" }],
+              },
+            ];
+          }
         },
       },
     ],

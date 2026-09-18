@@ -3,10 +3,12 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 import { cn } from "@/lib/utils"
-import { RotateCcw, Search, SlidersHorizontal, Check, Maximize, Minimize, CodeXml, ChevronLeft, Copy } from "lucide-react"
+import { RotateCcw, Search, SlidersHorizontal, Maximize, Minimize, CodeXml, ChevronLeft } from "lucide-react"
+import { CopyButton } from "@/components/copy-button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { motion, AnimatePresence, useDragControls, type PanInfo } from "framer-motion"
 import { useDocStore } from "@/hooks/use-doc-store"
+import { Tabs, TabsList, TabsTab } from "@workspace/ui/components/tabs"
 
 const CommandMenu = React.lazy(() =>
   import("@/components/command-menu").then((mod) => ({ default: mod.CommandMenu }))
@@ -41,7 +43,7 @@ function PreviewToolbarCell({
   return (
     <div
       className={cn(
-        "flex size-8 shrink-0 items-center justify-center rounded-2xl bg-zinc-200/65 text-foreground/65 dark:bg-zinc-800/75",
+        "flex size-8 shrink-0 items-center justify-center rounded-2xl bg-zinc-200/40 text-foreground/70 dark:bg-zinc-800/40 dark:text-foreground/70",
         active && "bg-foreground text-background dark:bg-zinc-100 dark:text-zinc-900",
         className
       )}
@@ -53,39 +55,6 @@ function PreviewToolbarCell({
 
 const previewToolbarIconClass =
   "flex size-full items-center justify-center rounded-2xl text-current transition-all ease-in-out active:scale-95"
-
-function PreviewVariantTab({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean
-  onClick: () => void
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      role="tab"
-      aria-selected={active}
-      onClick={onClick}
-      className={cn(
-        "relative shrink-0 rounded-lg px-2.5 py-1 text-[13px] font-medium outline-none transition-colors",
-        "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-        active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-      )}
-    >
-      {active && (
-        <motion.span
-          layoutId="preview-variant-pill"
-          className="absolute inset-0 rounded-lg bg-zinc-200/90 shadow-sm dark:bg-zinc-800/90"
-          transition={{ type: "spring", duration: 0.3, bounce: 0 }}
-        />
-      )}
-      <span className="relative">{children}</span>
-    </button>
-  )
-}
 
 const PREVIEW_EXPAND_MS = 420
 const PREVIEW_EXPAND_EASING = "cubic-bezier(0.22, 1, 0.36, 1)"
@@ -109,7 +78,6 @@ export function DocsPreviewWrapper({
   const [showPersonalize, setShowPersonalize] = React.useState(false)
   const [showSource, setShowSource] = React.useState(false)
   const [mounted, setMounted] = React.useState(false)
-  const [copied, setCopied] = React.useState(false)
   const [isExpanded, setIsExpanded] = React.useState(false)
   const [sourceHtml, setSourceHtml] = React.useState<string | null>(null)
   const [sourceCode, setSourceCode] = React.useState("")
@@ -130,7 +98,6 @@ export function DocsPreviewWrapper({
   }, [resolvedActiveVariant, setActiveVariantIndex])
 
   const previewRef = React.useRef<HTMLDivElement>(null)
-  const variantBarRef = React.useRef<HTMLDivElement>(null)
   const splitPreviewRectRef = React.useRef<PreviewRect | null>(null)
   const hasSourceCode = Boolean(sourceCodeKey)
 
@@ -250,7 +217,7 @@ export function DocsPreviewWrapper({
       const col = rightColumn?.getBoundingClientRect()
       const targetFromLayout: PreviewRect | null = col
         ? isMobile
-          ? { top: col.top, left: col.left, width: col.width, height: Math.min(col.height, window.innerHeight * 0.55) }
+          ? { top: col.top, left: col.left, width: col.width, height: col.height }
           : { top: col.top + 12, left: col.left + 6, width: col.width - 18, height: col.height - 24 }
         : null
       const target = targetFromLayout ?? splitPreviewRectRef.current
@@ -265,7 +232,7 @@ export function DocsPreviewWrapper({
       })
 
       onTransitionEnd = (event: TransitionEvent) => {
-        if (event.target !== previewShell || event.propertyName !== "width") return
+        if (event.target !== previewShell || !["width", "height"].includes(event.propertyName)) return
         clearFixedStyles()
       }
       previewShell.addEventListener("transitionend", onTransitionEnd)
@@ -284,10 +251,10 @@ export function DocsPreviewWrapper({
     <div className={cn(
       "relative w-full h-full rounded-xl lg:rounded-2xl border border-border/50 overflow-hidden bg-[#f7f7f7] dark:border-[#121212] dark:bg-[#171717] flex flex-col"
     )} ref={previewRef}>
-      {/* Toolbar — glass dock, fixed top-right */}
+      {/* Toolbar — same frosted treatment as variant tabs */}
       <section
         aria-label="Preview controls"
-        className="fixed right-6 top-6 z-[99] flex select-none items-center gap-1 rounded-2xl border border-border/40 bg-white/70 p-1.5 shadow-card backdrop-blur-xl dark:border-white/[0.06] dark:bg-[#171717]/75"
+        className="relative z-20 m-3 mb-0 flex shrink-0 self-end select-none lg:fixed lg:right-6 lg:top-6 lg:z-[99] lg:m-0 items-center gap-1 rounded-lg bg-zinc-100/30 p-1.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.06)] backdrop-blur-md dark:bg-zinc-950/30 dark:shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)]"
       >
         <PreviewToolbarCell>
           <React.Suspense
@@ -374,7 +341,7 @@ export function DocsPreviewWrapper({
       {/* Content Area */}
       <div className={cn(
         "w-full overflow-auto flex bg-[#f7f7f7] dark:bg-[#171717] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]",
-        "h-full",
+        "min-h-0 flex-1 lg:h-full",
         !fullWidthPreview && "items-center justify-center"
       )}>
         <div
@@ -382,7 +349,7 @@ export function DocsPreviewWrapper({
             "w-full",
             (resolvedActiveVariant >= 0 && variants[resolvedActiveVariant]?.fullWidth) || fullWidthPreview
               ? "h-full"
-              : "p-10 flex items-center justify-center"
+              : "p-4 lg:p-10 flex items-center justify-center"
           )}
         >
           <div key={key} className={cn("w-full h-full", !fullWidthPreview && "flex items-center justify-center")}>
@@ -391,34 +358,31 @@ export function DocsPreviewWrapper({
         </div>
       </div>
 
-      {/* Bottom Variant Bar */}
+      {/* Bottom Variant Bar — same Tabs shape as install; solid track (muted is 4% alpha) */}
       {variants.length > 0 && (
-        <div className="pointer-events-none absolute bottom-0 left-0 z-10 p-3 sm:p-4">
-          <div
-            ref={variantBarRef}
-            role="tablist"
-            aria-label="Preview variants"
-            className="pointer-events-auto flex max-w-[min(100vw-2rem,36rem)] items-center gap-0.5 overflow-x-auto rounded-2xl border border-border/40 bg-white/75 p-1 shadow-[0_8px_32px_rgba(0,0,0,0.08)] backdrop-blur-xl dark:border-white/[0.06] dark:bg-[#171717]/80 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        <div className="pointer-events-none relative z-10 w-full min-w-0 shrink-0 p-3 lg:absolute lg:bottom-0 lg:left-0 lg:w-auto lg:max-w-[min(100%,36rem)] lg:p-4">
+          <Tabs
+            value={String(resolvedActiveVariant)}
+            onValueChange={(value) => {
+              if (value == null) return
+              setActiveVariant(Number(value))
+            }}
+            className="pointer-events-auto min-w-0"
           >
-            {!hideDefaultVariant && (
-              <PreviewVariantTab
-                active={resolvedActiveVariant === -1}
-                onClick={() => setActiveVariant(-1)}
-              >
-                Default
-              </PreviewVariantTab>
-            )}
-
-            {variants.map((variant, i) => (
-              <PreviewVariantTab
-                key={i}
-                active={resolvedActiveVariant === i}
-                onClick={() => setActiveVariant(i)}
-              >
-                {variant.title}
-              </PreviewVariantTab>
-            ))}
-          </div>
+            <TabsList
+              aria-label="Preview variants"
+              className="max-w-full justify-start overflow-x-auto bg-zinc-100/30 dark:bg-zinc-950/30 backdrop-blur-md [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            >
+              {!hideDefaultVariant && (
+                <TabsTab value="-1">Default</TabsTab>
+              )}
+              {variants.map((variant, i) => (
+                <TabsTab key={i} value={String(i)}>
+                  {variant.title}
+                </TabsTab>
+              ))}
+            </TabsList>
+          </Tabs>
         </div>
       )}
 
@@ -527,17 +491,7 @@ export function DocsPreviewWrapper({
                           </div>
                         )}
                         {sourceCode && (
-                          <button
-                            onClick={async () => {
-                              await navigator.clipboard.writeText(sourceCode)
-                              setCopied(true)
-                              setTimeout(() => setCopied(false), 2000)
-                            }}
-                            className="inline-flex items-center justify-center w-7 h-7 rounded-md text-zinc-500 transition-colors hover:text-zinc-900 dark:hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                            aria-label={copied ? "Copied" : "Copy code"}
-                          >
-                            {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                          </button>
+                          <CopyButton code={sourceCode} absolute={false} />
                         )}
                       </div>
                     </div>

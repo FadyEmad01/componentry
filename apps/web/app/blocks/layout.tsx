@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 
 import {
-  LandingGuideLines,
   landingGutterClass,
 } from "@/components/landing/landing-frame";
 import { SiteHeader } from "@/components/site-header";
@@ -23,7 +22,6 @@ export default function BlocksLayout({
 }) {
   return (
     <div className="min-h-screen overflow-x-clip bg-background text-foreground">
-      <LandingGuideLines />
       <SiteHeader />
       <main className="overflow-x-clip pt-14">
         <div

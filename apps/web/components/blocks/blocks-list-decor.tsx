@@ -1,7 +1,7 @@
 export function BlocksListFooter() {
   return (
     <div className="p-2">
-      <div className="relative border border-line p-4">
+      <div className="p-4">
         <p className="font-mono text-sm tracking-[0.08em] text-muted-foreground uppercase">
           More blocks on the way...
         </p>
@@ -11,12 +11,6 @@ export function BlocksListFooter() {
           cleaner application surfaces.
         </p>
 
-        <div className="pointer-events-none *:absolute *:size-2 *:border *:border-line *:bg-background">
-          <div className="-top-[4.5px] -left-[4.5px]" />
-          <div className="-top-[4.5px] -right-[4.5px]" />
-          <div className="-bottom-[4.5px] -left-[4.5px]" />
-          <div className="-right-[4.5px] -bottom-[4.5px]" />
-        </div>
       </div>
     </div>
   );

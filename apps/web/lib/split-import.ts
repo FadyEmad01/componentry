@@ -82,6 +82,25 @@ export function splitImportAndUsage(code: string): {
   return { importCode, usageCode }
 }
 
+/** Join import + usage with exactly one blank line between them. */
+export function joinImportAndUsage(importCode: string, usageCode: string): string {
+  const imp = importCode.trim()
+  const usage = usageCode.trim()
+  if (!imp) return usage
+  if (!usage) return imp
+  return `${imp}\n\n${usage}`
+}
+
+/**
+ * Normalize any snippet so there is at least one blank line after the
+ * leading import block (common when authors jam import + JSX together).
+ */
+export function ensureImportSpacing(code: string): string {
+  const { importCode, usageCode } = splitImportAndUsage(code)
+  if (!importCode || !usageCode) return code.trim()
+  return joinImportAndUsage(importCode, usageCode)
+}
+
 /** Strip leading import block; returns full code if none found. */
 export function stripImportFromCode(code: string): string {
   const { usageCode } = splitImportAndUsage(code)

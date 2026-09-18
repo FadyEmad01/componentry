@@ -24,6 +24,14 @@ export function isNewComponent(component: ComponentMetadata): boolean {
 }
 
 export const components: Record<string, ComponentMetadata> = {
+  "grain-gradient": {
+    title: "Grain Gradient",
+    description:
+      "A breathing color field with flowing shadows, customizable film grain, and soft atmospheric light.",
+    category: "Hero Backgrounds",
+    slug: "grain-gradient",
+    addedAt: "2026-09-18",
+  },
   "annotated-text": {
     title: "Annotated Text",
     description:

@@ -14,64 +14,55 @@ interface DocsPropsTableProps {
 
 export function DocsPropsTable({ props, className }: DocsPropsTableProps) {
   return (
-    <div
-      className={cn(
-        "overflow-hidden rounded-lg border border-neutral-200 bg-neutral-200/40 dark:border-neutral-800 dark:bg-[#222222]",
-        className
-      )}
-    >
-      <div className="w-full overflow-x-auto">
-        <table className="w-full min-w-[520px] border-collapse text-sm">
-          <thead>
-            <tr className="border-b border-neutral-200 dark:border-neutral-800">
-              <th className="px-4 py-3 text-left text-[13px] font-medium text-neutral-600 dark:text-neutral-400">
-                Property
-              </th>
-              <th className="w-[28%] px-4 py-3 text-left text-[13px] font-medium text-neutral-600 dark:text-neutral-400">
-                Type
-              </th>
-              <th className="w-[22%] px-4 py-3 text-left text-[13px] font-medium text-neutral-600 dark:text-neutral-400">
-                Default
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-neutral-200 bg-white dark:divide-neutral-800 dark:bg-[#121212]">
-            {props.map((prop) => (
-              <tr
-                key={prop.name}
-                className="transition-colors hover:bg-zinc-100/70 dark:hover:bg-white/[0.035]"
-              >
-                <td className="px-4 py-4 align-top">
-                  <div className="space-y-1.5">
-                    <code className="font-mono text-[13px] font-medium text-zinc-900 dark:text-zinc-100">
-                      {prop.name}
-                    </code>
-                    {prop.description && (
-                      <p className="max-w-md text-[13px] leading-relaxed text-muted-foreground">
-                        {prop.description}
-                      </p>
-                    )}
-                  </div>
-                </td>
-                <td className="px-4 py-4 align-top">
-                  <code className="inline-block rounded-md bg-zinc-200/70 px-2 py-1 font-mono text-[12px] text-zinc-700 dark:bg-zinc-800/70 dark:text-zinc-300">
-                    {prop.type}
+    <div className={cn("w-full overflow-x-auto", className)}>
+      <table className="w-full table-fixed border-collapse text-left">
+        <colgroup>
+          <col className="w-[28%]" />
+          <col className="w-[47%]" />
+          <col className="w-[25%]" />
+        </colgroup>
+        <thead>
+          <tr className="border-b border-zinc-200/80 dark:border-white/[0.08]">
+            <th className="pb-2.5 pr-3 text-[11px] font-medium uppercase tracking-[0.08em] text-zinc-400 dark:text-zinc-500">
+              Prop
+            </th>
+            <th className="pb-2.5 pr-3 text-[11px] font-medium uppercase tracking-[0.08em] text-zinc-400 dark:text-zinc-500">
+              Type
+            </th>
+            <th className="pb-2.5 text-[11px] font-medium uppercase tracking-[0.08em] text-zinc-400 dark:text-zinc-500">
+              Default
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {props.map((prop) => (
+            <tr
+              key={prop.name}
+              className="border-b border-zinc-100 last:border-b-0 dark:border-white/[0.05]"
+            >
+              <td className="py-2.5 pr-3 align-top">
+                <code className="inline-flex max-w-full rounded-md bg-zinc-100 px-1.5 py-0.5 font-mono text-[12.5px] font-medium text-zinc-800 dark:bg-white/[0.06] dark:text-zinc-200">
+                  {prop.name}
+                </code>
+              </td>
+              <td className="py-2.5 pr-3 align-top">
+                <code className="block break-words font-mono text-[12.5px] leading-snug text-zinc-500 line-clamp-2 dark:text-zinc-400">
+                  {prop.type}
+                </code>
+              </td>
+              <td className="py-2.5 align-top">
+                {prop.default ? (
+                  <code className="block break-words font-mono text-[12.5px] leading-snug tabular-nums text-zinc-500 line-clamp-2 dark:text-zinc-400">
+                    {prop.default}
                   </code>
-                </td>
-                <td className="px-4 py-4 align-top">
-                  {prop.default ? (
-                    <code className="inline-block rounded-md bg-zinc-200/40 px-2 py-1 font-mono text-[12px] text-muted-foreground dark:bg-zinc-800/40">
-                      {prop.default}
-                    </code>
-                  ) : (
-                    <span className="text-[13px] text-muted-foreground/35">—</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                ) : (
+                  <span className="text-[12.5px] text-zinc-300 dark:text-zinc-600">—</span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }

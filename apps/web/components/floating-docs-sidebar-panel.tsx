@@ -158,13 +158,13 @@ export function FloatingDocsSidebarPanel() {
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: -40, opacity: 0 }}
           transition={{ type: "spring", duration: 0.35, bounce: 0 }}
-          className="fixed top-3 left-3 z-50 flex w-72 flex-col"
+          className="fixed inset-y-3 left-3 z-50 flex w-72 flex-col"
           onMouseLeave={close}
         >
-          <div className="flex max-h-[calc(100vh-24px)] flex-col gap-1 overflow-hidden rounded-xl lg:rounded-2xl border border-border/50 bg-white p-2 shadow-card dark:bg-[#121212]">
+          <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-hidden rounded-xl lg:rounded-2xl border border-border/50 bg-white p-2 pt-12 shadow-card dark:bg-[#121212]">
 
 
-            <div className="mask-image-b flex-1 overflow-y-auto px-2 pt-3 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="mask-image-b min-h-0 flex-1 overflow-y-auto px-2 pt-3 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {docsConfig.nav.map((group, index) => {
                 const lineItems: LineNavItem[] = group.items.map((item) => {
                   const slug = item.href.split("/").pop()
