@@ -13,11 +13,11 @@ import { cn } from "@/lib/utils"
 import posthog from "posthog-js"
 
 const sponsorHref =
-  "https://github.com/sponsors/harshjdhv?utm_source=componentry&utm_medium=sponsor&utm_campaign=sponsors_page"
+  "https://polar.sh/checkout/polar_c_e9A0LLA2aX2Uh7lwbxLHFh0xQdgLgA49FO57w4NJpJN"
 
 const sponsorStats = [
-  { value: "15k+", label: "Monthly visitors" },
-  { value: "70k+", label: "Page views" },
+  { value: "25k+", label: "Monthly visitors" },
+  { value: "150k+", label: "Page views" },
   { value: "60+", label: "Free components" },
 ]
 
@@ -39,49 +39,49 @@ const sponsorWall: {
 const pricingTiers = [
   {
     name: "Main",
-    price: "$150",
+    price: "$250",
     cadence: "/mo",
-    description: "The highest-visibility spot for a product that should be seen by Componentry's most engaged visitors.",
+    description: "Get the most visibility across Componentry.",
     features: [
-      "Prominent sponsor-board placement",
-      "Header sponsor placement",
-      "Short product note beside your logo",
-      "Helps fund new components and maintenance",
+      "Top spot on the sponsors page",
+      "Large logo on the homepage",
+      "Large logo in the README",
+      "Shoutout on X",
+      "Direct chat for feedback and requests",
     ],
-    hoverNote: "Your logo gets the good seat.",
+    hoverNote: "More space for your brand.",
     highlighted: true,
   },
   {
     name: "Supporter",
-    price: "$100",
+    price: "$150",
     cadence: "/mo",
-    description: "A polished sponsor presence for teams who want to support the library and stay discoverable.",
+    description: "Support Componentry and get your product seen.",
     features: [
-      "Visible sponsor-board slot",
-      "Logo linked to your product",
-      "Listed alongside active backers",
-      "Supports ongoing demos and docs",
+      "Featured logo on the sponsors page",
+      "Logo on the homepage",
+      "Featured logo in the README",
+      "Shoutout on X",
     ],
-    hoverNote: "A crisp hello to every builder.",
+    hoverNote: "Help us build more components.",
   },
   {
     name: "Backer",
-    price: "$59",
+    price: "$75",
     cadence: "/mo",
-    description: "A lightweight way to back independent UI work and keep your name in the project.",
+    description: "Help keep Componentry free for everyone.",
     features: [
-      "Backer slot on this page",
-      "Name or product link",
-      "Public support signal",
-      "Helps keep the library free",
+      "Logo and link on the sponsors page",
+      "Logo in the README",
+      "Shoutout on X",
     ],
-    hoverNote: "Tiny slot. Real gratitude.",
+    hoverNote: "Every bit of support helps.",
   },
 ]
 
 function SponsorCta({
   className,
-  children = "Sponsor on GitHub",
+  children = "Sponsor on Polar",
 }: {
   className?: string
   children?: React.ReactNode
@@ -275,7 +275,7 @@ export default function SponsorsPage() {
                 </p>
               </div>
 
-              <div className="mt-8 grid gap-3 lg:grid-cols-3">
+              <div className="mt-8 grid auto-rows-fr gap-3 lg:grid-cols-3">
                 {pricingTiers.map((tier) => (
                   <Link
                     key={tier.name}
@@ -287,7 +287,7 @@ export default function SponsorsPage() {
                         sponsorship_tier: tier.name.toLowerCase(),
                       })
                     }
-                    className="group relative block min-h-full pt-10"
+                    className="group relative flex flex-col pt-10"
                   >
                     <div className="pointer-events-none absolute inset-x-0 top-0 bottom-2 z-0 rounded-[1.35rem] bg-white/45 opacity-0 shadow-[0_0_0_1px_rgba(0,0,0,0.05),inset_0_18px_40px_-30px_rgba(0,0,0,0.28),inset_0_-18px_40px_-32px_rgba(0,0,0,0.24)] backdrop-blur-xl [transform:translate3d(0,14px,0)] transition-[opacity,transform] duration-150 ease-in will-change-[opacity,transform] group-hover:opacity-100 group-hover:[transform:translate3d(0,0,0)] group-hover:duration-500 group-hover:ease-out-strong motion-reduce:transform-none motion-reduce:transition-opacity motion-reduce:will-change-auto dark:bg-white/[0.055] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.07),inset_0_18px_40px_-30px_rgba(255,255,255,0.2),inset_0_-18px_40px_-32px_rgba(255,255,255,0.16)]">
                       <p className="px-4 pt-3 text-center text-sm font-medium text-zinc-700 dark:text-zinc-100">
@@ -297,7 +297,7 @@ export default function SponsorsPage() {
 
                     <div
                       className={cn(
-                        "relative z-10 flex min-h-[380px] flex-col overflow-hidden rounded-[1.35rem] bg-white p-5 text-left shadow-[0_0_0_1px_rgba(0,0,0,0.06),inset_0_8px_18px_-20px_color-mix(in_oklch,var(--foreground)_45%,transparent),inset_0_-8px_18px_-22px_color-mix(in_oklch,var(--foreground)_40%,transparent)] [transform:translate3d(0,0,0)] transition-[background-color,box-shadow,transform] duration-500 ease-out-strong will-change-transform group-hover:[transform:translate3d(0,-4px,0)] group-hover:bg-white group-hover:shadow-[0_0_0_1px_rgba(0,0,0,0.075),0_22px_60px_-42px_rgba(0,0,0,0.65),inset_0_8px_18px_-20px_color-mix(in_oklch,var(--foreground)_45%,transparent),inset_0_-8px_18px_-22px_color-mix(in_oklch,var(--foreground)_40%,transparent)] motion-reduce:transform-none motion-reduce:transition-colors motion-reduce:will-change-auto dark:bg-[#1a1a1a] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.085),inset_0_8px_18px_-20px_color-mix(in_oklch,var(--foreground)_45%,transparent),inset_0_-8px_18px_-22px_color-mix(in_oklch,var(--foreground)_40%,transparent)] dark:group-hover:bg-[#1a1a1a] dark:group-hover:shadow-[0_0_0_1px_rgba(255,255,255,0.105),0_22px_60px_-42px_rgba(0,0,0,0.9),inset_0_8px_18px_-20px_color-mix(in_oklch,var(--foreground)_45%,transparent),inset_0_-8px_18px_-22px_color-mix(in_oklch,var(--foreground)_40%,transparent)] sm:p-6",
+                        "relative z-10 flex min-h-[380px] flex-1 flex-col overflow-hidden rounded-[1.35rem] bg-white p-5 text-left shadow-[0_0_0_1px_rgba(0,0,0,0.06),inset_0_8px_18px_-20px_color-mix(in_oklch,var(--foreground)_45%,transparent),inset_0_-8px_18px_-22px_color-mix(in_oklch,var(--foreground)_40%,transparent)] [transform:translate3d(0,0,0)] transition-[background-color,box-shadow,transform] duration-500 ease-out-strong will-change-transform group-hover:[transform:translate3d(0,-4px,0)] group-hover:bg-white group-hover:shadow-[0_0_0_1px_rgba(0,0,0,0.075),0_22px_60px_-42px_rgba(0,0,0,0.65),inset_0_8px_18px_-20px_color-mix(in_oklch,var(--foreground)_45%,transparent),inset_0_-8px_18px_-22px_color-mix(in_oklch,var(--foreground)_40%,transparent)] motion-reduce:transform-none motion-reduce:transition-colors motion-reduce:will-change-auto dark:bg-[#1a1a1a] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.085),inset_0_8px_18px_-20px_color-mix(in_oklch,var(--foreground)_45%,transparent),inset_0_-8px_18px_-22px_color-mix(in_oklch,var(--foreground)_40%,transparent)] dark:group-hover:bg-[#1a1a1a] dark:group-hover:shadow-[0_0_0_1px_rgba(255,255,255,0.105),0_22px_60px_-42px_rgba(0,0,0,0.9),inset_0_8px_18px_-20px_color-mix(in_oklch,var(--foreground)_45%,transparent),inset_0_-8px_18px_-22px_color-mix(in_oklch,var(--foreground)_40%,transparent)] sm:p-6",
                         tier.highlighted && "shadow-[0_0_0_1px_rgba(0,0,0,0.085),0_18px_50px_-44px_rgba(0,0,0,0.65),inset_0_8px_18px_-20px_color-mix(in_oklch,var(--foreground)_45%,transparent),inset_0_-8px_18px_-22px_color-mix(in_oklch,var(--foreground)_40%,transparent)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.115),0_18px_50px_-44px_rgba(0,0,0,0.95),inset_0_8px_18px_-20px_color-mix(in_oklch,var(--foreground)_45%,transparent),inset_0_-8px_18px_-22px_color-mix(in_oklch,var(--foreground)_40%,transparent)]"
                       )}
                     >
@@ -335,7 +335,7 @@ export default function SponsorsPage() {
                         ))}
                       </ul>
 
-                      <div className="mt-auto flex h-10 items-center justify-center gap-1.5 rounded-full bg-foreground text-sm font-medium text-background transition-opacity duration-300 ease-out-strong group-hover:opacity-90">
+                      <div className="mt-auto flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-full bg-foreground text-sm font-medium text-background transition-opacity duration-300 ease-out-strong group-hover:opacity-90">
                         Sponsor this tier
                         <ArrowUpRight className="size-3.5 [transform:translate3d(0,0,0)] transition-transform duration-300 ease-out-strong group-hover:[transform:translate3d(2px,-2px,0)]" />
                       </div>

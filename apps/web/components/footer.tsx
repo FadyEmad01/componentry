@@ -18,7 +18,7 @@ const footerLinks = [
   { label: "Collections", href: "/collections" },
   { label: "Blocks", href: "/blocks" },
   { label: "MCP", href: "/docs/mcp" },
-  { label: "Sponsor", href: "https://github.com/sponsors/harshjdhv" },
+  { label: "Sponsor", href: "https://polar.sh/checkout/polar_c_e9A0LLA2aX2Uh7lwbxLHFh0xQdgLgA49FO57w4NJpJN" },
   { label: "Developer", href: "https://harshjdhv.com" },
   { label: "Terms", href: "/terms-of-service" },
   { label: "Privacy", href: "/privacy-policy" },
